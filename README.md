@@ -185,45 +185,6 @@ ISonyGamepad* FDeviceRegistry::GetLibraryInstance(FInputDeviceId DeviceId)
 
 ```
 
-1. Initialize with Injection
-GamepadCore uses dependency injection to link the Core with your specific platform/engine environment.
-```cpp
-   // In your Engine's Startup Module (e.g., Unreal Engine)
-   void StartupModule()
-   {
-   // 1. Inject Hardware Driver (Windows, Linux, or Console)
-   IPlatformHardwareInfo::SetInstance(new FWindowsHardwareDriver());
-
-   // 2. Initialize Registry with Engine Policy
-   // Here we tell the core to use Unreal's TMap and FInputDeviceId
-   Registry = std::make_unique<TBasicDeviceRegistry<FUnrealRegistryPolicy>>();
-   }
-```
-
-2. The Policy (Your Engine Adapter)
-   You only need to define how to store the device. The Core handles when to connect it.
-```cpp
-// Example implementation of a Policy method
-EngineIdType AllocEngineDevice(CoreDeviceId CoreId) 
-{
-    // The Core detected a physical device! Now we tell the engine.
-    int32_t NewId = EngineInputSystem::AddDevice();
-    return NewId;
-}
-
-void DispatchNewGamepad(CoreDeviceId CoreId) 
-{
-    // Notify the game via Delegate/Event
-    OnControllerConnected.Broadcast();
-}
-
-void FreeEngineDevice(CoreDeviceId CoreId, EngineIdType EngineId) 
-{
-    // Cleanup when unplugged
-    EngineInputSystem::RemoveDevice(EngineId);
-}
-```
-
 ## 🧑‍💻 Contributing (Build & sanity checks)
 
 GamepadCore is meant to be consumed **from source** (e.g., compiled inside an engine/plugin build).  
