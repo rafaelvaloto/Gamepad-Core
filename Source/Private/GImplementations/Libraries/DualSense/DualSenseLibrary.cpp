@@ -85,6 +85,7 @@ bool FDualSenseLibrary::Initialize(const FDeviceContext& Context)
 		EnableReport->Lightbar = {0, 0, 222};
 		EnableReport->PlayerLed.Brightness = 0x00;
 		UpdateOutput();
+		std::this_thread::sleep_for(std::chrono::milliseconds(100));
 
 		// Audio haptics bluetooth
 		DSContext->BufferAudio[0] = 0x32;
