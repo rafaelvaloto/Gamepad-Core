@@ -21,7 +21,6 @@ Modern, policy-based C++ library for advanced gamepad features (DualSense/DS4). 
 </div>
 
 ---
-# GamepadCore 🕹️
 
 **GamepadCore** is a high-performance, platform-agnostic C++ library designed to handle raw HID communication with game controllers. It bypasses generic abstraction layers (like XInput or SDL) to unlock hardware-specific features often inaccessible in standard APIs.
 
