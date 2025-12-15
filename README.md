@@ -70,6 +70,52 @@ Contains the specific HID protocol logic (byte arrays) for the hardware itself.
 * **SonyGamepadAbstract:** Handles logic shared between PS4/PS5.
 * **DualSenseLibrary:** Handles specific DualSense features (Adaptive Triggers, Haptics, Lightbar) by interpreting raw input/output reports.
 
+```mermaid
+graph BT
+    %% BT = Bottom to Top (Faz o Core subir)
+
+    %% Styling
+    classDef core fill:#e1f5fe,stroke:#01579b,stroke-width:2px,color:#000;
+    classDef adapter fill:#fff9c4,stroke:#fbc02d,stroke-width:2px,color:#000;
+    classDef engine fill:#f3e5f5,stroke:#7b1fa2,stroke-width:2px,color:#000;
+    classDef platform fill:#e0f2f1,stroke:#00695c,stroke-width:2px,stroke-dasharray: 5 5,color:#000;
+
+    subgraph Framework ["🧠 GamepadCore (Pure C++ Library)"]
+        direction TB
+        GC["<b>GCore</b><br>Interfaces, Templates & Registry Logic"]:::core
+        GI["<b>GImplementations</b><br>HID Parsing & Sony Protocol"]:::core
+        
+        %% Inverti internamente para o GCore ficar acima das Implementações
+        GI --> GC 
+    end
+
+    subgraph HAL ["💻 Platform Abstraction Layer"]
+        Win["<b>Windows Policy</b><br>(SetupAPI / HID)"]:::platform
+        Lin["<b>Linux Policy</b><br>(SDL / HIDAPI)"]:::platform
+    end
+
+    subgraph Adapters ["🔌 Adapters Layer (The Bridge)"]
+        direction TB
+        UE_Adp["<b>Unreal Adapter</b><br>(DeviceRegistryPolicy)"]:::adapter
+        GD_Adp["<b>Godot Adapter</b><br>(GodotRegistryPolicy)"]:::adapter
+        Other_Adp["<b>Custom Adapter</b><br>(Unity / O3DE Policy)"]:::adapter
+    end
+
+    subgraph Engines ["🎮 Target Engines (Clients)"]
+        UE["Unreal Engine 5"]:::engine
+        GD["Godot 4.x"]:::engine
+        Other["O3DE / Custom Engine"]:::engine
+    end
+
+    %% Relations (O sentido da seta mantém a lógica de injeção, mas o BT joga o alvo pra cima)
+    HAL -.->|"Injects Hardware Access"| Framework
+    Adapters -.->|"Injects Engine Behavior"| Framework
+    
+    UE ==> UE_Adp
+    GD ==> GD_Adp
+    Other ==> Other_Adp
+```
+
 ## 💻 Integration Example
 1. Basic Setup (C++ Standalone)
    To use GamepadCore in your project, you instantiate the registry with a specific policy.
