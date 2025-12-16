@@ -21,12 +21,11 @@ Modern, policy-based C++ library for advanced gamepad features (DualSense/DS4). 
 </div>
 
 ---
-# GamepadCore 🕹️
 
 **GamepadCore** is a high-performance, platform-agnostic C++ library designed to handle raw HID communication with game controllers. It bypasses generic abstraction layers (like XInput or SDL) to unlock hardware-specific features often inaccessible in standard APIs.
 
 > 🚀 **Battle-Tested & Engine Agnostic:**
-> While currently powering the [Godot-Dualsense](LINK_DO_SEU_REPO_GODOT) GDExtension, this core logic is built to be easily integrated into **Unreal Engine**, **Unity** (via Native Plugin), custom engines, or standalone C++ applications.
+> While currently powering the [Godot-Dualsense](https://github.com/rafaelvaloto/Godot-Dualsense) GDExtension, this core logic is built to be easily integrated into **Unreal Engine**, **Unity** (via Native Plugin), custom engines, or standalone C++ applications.
 
 ## 🔌 Integrations & Showcase
 
@@ -34,8 +33,8 @@ Since **GamepadCore** is decoupled from game engines, it serves as the backend l
 
 | Engine | Project                                                                                                | Description |
 | :--- |:-------------------------------------------------------------------------------------------------------| :--- |
-| <img src="https://upload.wikimedia.org/wikipedia/commons/6/6a/Godot_icon.svg" width="40"/> **Godot** | [**Godot-Dualsense**](LINK_DO_SEU_REPO_GODOT)                                                          | A GDExtension wrapper exposing features to GDScript via Signals. |
-| <img src="https://upload.wikimedia.org/wikipedia/commons/2/20/UE_Logo_Black_Centered.svg" width="40"/> **Unreal** | [**Unreal-Dualsense**](https://github.com/rafaelvaloto/WindowsDualsenseUnreal/tree/v2.0.0-development) | A UE5 Plugin implementation demonstrating how to map raw HID to Unreal's Subsystem and Input mappings. |
+| <img src="https://upload.wikimedia.org/wikipedia/commons/6/6a/Godot_icon.svg" width="40"/>  | [**Godot-Dualsense**](https://github.com/rafaelvaloto/Godot-Dualsense)                                 | A GDExtension wrapper exposing features to GDScript via Signals. |
+| <img src="https://upload.wikimedia.org/wikipedia/commons/2/20/UE_Logo_Black_Centered.svg" width="40"/>  | [**Unreal-Dualsense**](https://github.com/rafaelvaloto/WindowsDualsenseUnreal/tree/v2.0.0-development) | A UE5 Plugin implementation demonstrating how to map raw HID to Unreal's Subsystem and Input mappings. |
 
 > 💡 **Why this matters:** This proves that the core logic (HID parsing, Haptics, Trigger math) is written once and reused everywhere.
 
@@ -70,6 +69,52 @@ This is where the flexibility lies. You provide a "Policy" class that tells the 
 Contains the specific HID protocol logic (byte arrays) for the hardware itself.
 * **SonyGamepadAbstract:** Handles logic shared between PS4/PS5.
 * **DualSenseLibrary:** Handles specific DualSense features (Adaptive Triggers, Haptics, Lightbar) by interpreting raw input/output reports.
+
+```mermaid
+graph BT
+    %% BT = Bottom to Top (Faz o Core subir)
+
+    %% Styling
+    classDef core fill:#e1f5fe,stroke:#01579b,stroke-width:2px,color:#000;
+    classDef adapter fill:#fff9c4,stroke:#fbc02d,stroke-width:2px,color:#000;
+    classDef engine fill:#f3e5f5,stroke:#7b1fa2,stroke-width:2px,color:#000;
+    classDef platform fill:#e0f2f1,stroke:#00695c,stroke-width:2px,stroke-dasharray: 5 5,color:#000;
+
+    subgraph Framework ["🧠 GamepadCore (Pure C++ Library)"]
+        direction TB
+        GC["<b>GCore</b><br>Interfaces, Templates & Registry Logic"]:::core
+        GI["<b>GImplementations</b><br>HID Parsing & Sony Protocol"]:::core
+        
+        %% Inverti internamente para o GCore ficar acima das Implementações
+        GI --> GC 
+    end
+
+    subgraph HAL ["💻 Platform Abstraction Layer"]
+        Win["<b>Windows Policy</b><br>(SetupAPI / HID)"]:::platform
+        Lin["<b>Linux Policy</b><br>(SDL / HIDAPI)"]:::platform
+    end
+
+    subgraph Adapters ["🔌 Adapters Layer (The Bridge)"]
+        direction TB
+        UE_Adp["<b>Unreal Adapter</b><br>(DeviceRegistryPolicy)"]:::adapter
+        GD_Adp["<b>Godot Adapter</b><br>(GodotRegistryPolicy)"]:::adapter
+        Other_Adp["<b>Custom Adapter</b><br>(Unity / O3DE Policy)"]:::adapter
+    end
+
+    subgraph Engines ["🎮 Target Engines (Clients)"]
+        UE["Unreal Engine 5"]:::engine
+        GD["Godot 4.x"]:::engine
+        Other["O3DE / Custom Engine"]:::engine
+    end
+
+    %% Relations (O sentido da seta mantém a lógica de injeção, mas o BT joga o alvo pra cima)
+    HAL -.->|"Injects Hardware Access"| Framework
+    Adapters -.->|"Injects Engine Behavior"| Framework
+    
+    UE ==> UE_Adp
+    GD ==> GD_Adp
+    Other ==> Other_Adp
+```
 
 ## 💻 Integration Example
 1. Basic Setup (C++ Standalone)
