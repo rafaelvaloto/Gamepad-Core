@@ -187,6 +187,10 @@ struct FDeviceContext
 	unsigned char OverrideTriggerRight[10] = {};
 	unsigned char OverrideTriggerLeft[10] = {};
 
+	bool bEnableTouch = false;
+	bool bEnableGesture = false;
+	bool bIsResetGyroscope = false;
+	bool bEnableAccelerometerAndGyroscope = false;
 	/**
 	 * A map representing the states of various buttons on a controller.
 	 *
@@ -233,7 +237,6 @@ protected:
 	 * the system.
 	 */
 	FInputContext Input;
-
 	/**
 	 * @brief Represents the input processing context running on the game thread.
 	 *
@@ -246,7 +249,6 @@ protected:
 	 * execution of input logic within the game engine.
 	 */
 	FInputContext InputGameThread;
-
 	/**
 	 * @brief Ensures thread-safe access to shared input resources.
 	 *
@@ -274,6 +276,13 @@ public:
 			std::memcpy(BufferAudio, Other.BufferAudio, sizeof(BufferAudio));
 			std::memcpy(BufferOutput, Other.BufferOutput, sizeof(BufferOutput));
 
+			// Auxiliary state variables
+			bEnableTouch = Other.bEnableTouch;
+			bEnableGesture = Other.bEnableGesture;
+			bIsResetGyroscope = Other.bIsResetGyroscope;
+			bEnableAccelerometerAndGyroscope = Other.bEnableAccelerometerAndGyroscope;
+
+			// Auxiliary status variables
 			Calibration = Other.Calibration;
 			IsConnected = Other.IsConnected;
 			DeviceType = Other.DeviceType;

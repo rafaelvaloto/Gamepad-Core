@@ -38,22 +38,6 @@ namespace DSCoreTypes
 		float X = 0.0f;
 		float Y = 0.0f;
 		float Z = 0.0f;
-
-		void Normalize()
-		{
-			float LengthSq = (X * X) + (Y * Y) + (Z * Z);
-			if (LengthSq < 1e-8f)
-			{
-				X = 0.0f;
-				Y = 0.0f;
-				Z = 0.0f;
-				return;
-			}
-			float InvLength = 1.0f / std::sqrt(LengthSq);
-			X *= InvLength;
-			Y *= InvLength;
-			Z *= InvLength;
-		}
 	};
 
 	struct FDSColor
@@ -62,74 +46,6 @@ namespace DSCoreTypes
 		uint8_t G = 0;
 		uint8_t B = 0;
 		uint8_t A = 1;
-	};
-
-	struct DSRotator
-	{
-		float Pitch = 0.0f;
-		float Yaw = 0.0f;
-		float Roll = 0.0f;
-	};
-
-	struct DSQuat
-	{
-		float X = 0.0f;
-		float Y = 0.0f;
-		float Z = 0.0f;
-		float W = 1.0f;
-
-		constexpr DSQuat() = default;
-		constexpr DSQuat(float InX, float InY, float InZ, float InW)
-		    : X(InX)
-		    , Y(InY)
-		    , Z(InZ)
-		    , W(InW)
-		{}
-
-		DSQuat operator*(const DSQuat& B) const
-		{
-			DSQuat R;
-			R.W = (W * B.W) - (X * B.X) - (Y * B.Y) - (Z * B.Z);
-			R.X = (W * B.X) + (X * B.W) + (Y * B.Z) - (Z * B.Y);
-			R.Y = (W * B.Y) - (X * B.Z) + (Y * B.W) + (Z * B.X);
-			R.Z = (W * B.Z) + (X * B.Y) - (Y * B.X) + (Z * B.W);
-			return R;
-		}
-
-		[[nodiscard]] DSVector3D GetUpVector() const
-		{
-			return DSVector3D{2.0f * (X * Z - W * Y), 2.0f * (Y * Z + W * X),
-			                  1.0f - 2.0f * (X * X + Y * Y)};
-		}
-
-		// To Euler (DSRotator)
-		[[nodiscard]] DSRotator ToRotator() const
-		{
-			DSRotator R;
-
-			// Roll (X)
-			float sinr_cosp = 2.0f * (W * X + Y * Z);
-			float cosr_cosp = 1.0f - 2.0f * (X * X + Y * Y);
-			R.Roll = std::atan2(sinr_cosp, cosr_cosp) * DS_RAD_TO_DEG;
-
-			// Pitch (Y)
-			float sinp = 2.0f * (W * Y - Z * X);
-			if (std::abs(sinp) >= 1.0f)
-			{
-				R.Pitch = std::copysign(DS_PI / 2.0f, sinp) * DS_RAD_TO_DEG;
-			}
-			else
-			{
-				R.Pitch = std::asin(sinp) * DS_RAD_TO_DEG;
-			}
-
-			// Yaw (Z)
-			float siny_cosp = 2.0f * (W * Z + X * Y);
-			float cosy_cosp = 1.0f - 2.0f * (Y * Y + Z * Z);
-			R.Yaw = std::atan2(siny_cosp, cosy_cosp) * DS_RAD_TO_DEG;
-
-			return R;
-		}
 	};
 
 	namespace LedMasks

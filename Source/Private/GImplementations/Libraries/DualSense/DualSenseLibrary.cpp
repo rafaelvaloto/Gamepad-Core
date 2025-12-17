@@ -122,13 +122,13 @@ void FDualSenseLibrary::UpdateInput(float Delta)
 	using namespace FGamepadInput;
 	DualSenseRaw(&Context->Buffer[Padding], InputToFill);
 
-	if (IsEnableTouch())
+	if (Context->bEnableGesture)
 	{
 		using namespace FGamepadTouch;
 		ProcessTouch(&Context->Buffer[Padding], InputToFill);
 	}
 
-	if (IsEnableAccelerometerAndGyroscope())
+	if (Context->bEnableAccelerometerAndGyroscope)
 	{
 		DSCoreTypes::DSVector3D GyroDeg;
 		DSCoreTypes::DSVector3D AccelG;

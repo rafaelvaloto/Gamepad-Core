@@ -6,32 +6,15 @@
 #include "GCore/Interfaces/IPlatformHardwareInfo.h"
 
 std::unique_ptr<IPlatformHardwareInfo>
-    IPlatformHardwareInfo::PlatformInfoInstance = nullptr;
+	IPlatformHardwareInfo::PlatformInfoInstance = nullptr;
 
 IPlatformHardwareInfo& IPlatformHardwareInfo::Get()
 {
-	if (PlatformInfoInstance)
-	{
-		return *PlatformInfoInstance;
-	}
-
-#ifdef _WIN32
-	// PlatformInfoInstance = std::make_unique<FWindowsDeviceInfo>();
-#elif defined(__unix__)
-	// PlatformInfoInstance = std::make_shared<FCommonsDeviceInfo>();
-#else
-	// PlatformInfoInstance = std::make_unique<FMacDeviceInfo>();
-#endif
-
-	if (!PlatformInfoInstance)
-	{
-	}
-
 	return *PlatformInfoInstance;
 }
 
 void IPlatformHardwareInfo::SetInstance(
-    std::unique_ptr<IPlatformHardwareInfo> InPlatform)
+	std::unique_ptr<IPlatformHardwareInfo> InPlatform)
 {
 	PlatformInfoInstance = std::move(InPlatform);
 }

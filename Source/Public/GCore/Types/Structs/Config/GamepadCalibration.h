@@ -24,13 +24,13 @@
  */
 struct FGamepadCalibration
 {
-	std::uint16_t GyroBiasX = 0;
-	std::uint16_t GyroBiasY = 0;
-	std::uint16_t GyroBiasZ = 0;
+	float GyroBiasX = 0.f;
+	float GyroBiasY = 0.f;
+	float GyroBiasZ = 0.f;
 
-	float AccelBiasX = 0;
-	float AccelBiasY = 0;
-	float AccelBiasZ = 0;
+	float AccelBiasX = 0.f;
+	float AccelBiasY = 0.f;
+	float AccelBiasZ = 0.f;
 
 	float GyroFactorX = 1.0f;
 	float GyroFactorY = 1.0f;

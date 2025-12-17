@@ -167,28 +167,9 @@ public:
 	 */
 	void SetVibration(std::uint8_t LeftRumble, std::uint8_t RightRumble) override {}
 
-	SonyGamepadAbstract()
-	    : bEnableTouch(false)
-	    , bEnableGesture(false)
-	    , bHasPhoneConnected(false)
-	    , BatteryLevel(0)
-	    , bEnableAccelerometerAndGyroscope(false)
-	    , HIDDeviceContexts()
-	{}
+	SonyGamepadAbstract() : HIDDeviceContexts() {}
 
 protected:
-	[[nodiscard]] bool IsEnableGesture() const { return bEnableGesture; }
-	[[nodiscard]] bool IsEnableTouch() const { return bEnableTouch; }
-	[[nodiscard]] bool IsEnableAccelerometerAndGyroscope() const
-	{
-		return bEnableAccelerometerAndGyroscope;
-	}
-	[[nodiscard]] bool IsResetGyroscope() const { return bIsResetGyroscope; }
-	void SetIsResetGyroscope(const bool IsResetGyroscope)
-	{
-		this->bIsResetGyroscope = IsResetGyroscope;
-	}
-
 	/**
 	 * @brief Sets the device contexts for the HID device.
 	 *
@@ -206,26 +187,6 @@ protected:
 
 private:
 	/**
-	 * @brief A variable that indicates whether touch functionality is enabled or
-	 * disabled.
-	 *
-	 * This variable is used to toggle the touch input capability of the system or
-	 * application. When set to true, touch input is enabled, allowing the system
-	 * to respond to touch events. When set to false, touch input is disabled, and
-	 * touch interactions are ignored.
-	 */
-	bool bEnableTouch;
-	/**
-	 * @brief A variable that indicates whether touch functionality is enabled or
-	 * disabled.
-	 *
-	 * This variable is used to toggle the touch input capability of the system or
-	 * application. When set to true, touch input is enabled, allowing the system
-	 * to respond to touch events. When set to false, touch input is disabled, and
-	 * touch interactions are ignored.
-	 */
-	bool bEnableGesture;
-	/**
 	 * Indicates whether a phone is connected to the system.
 	 *
 	 * This variable is used to store the connection status of a phone.
@@ -234,49 +195,6 @@ private:
 	 * - `false`: No phone is connected.
 	 */
 	bool bHasPhoneConnected;
-	/**
-	 * @brief Represents the current level of the battery.
-	 *
-	 * This variable is used to store the battery percentage or charge level,
-	 * typically as an integer or floating-point value. It can be used to
-	 * monitor battery status in various applications and scenarios.
-	 *
-	 * Note: The scale and representation (e.g., percentage, voltage) should
-	 * be specified in the implementation or context where the variable is used.
-	 */
-	float BatteryLevel;
-	/**
-	 * @variable EnableAccelerometerAndGyroscope
-	 * @brief Flags the activation of accelerometer and gyroscope sensors in the
-	 * system.
-	 *
-	 * This variable determines whether the accelerometer and gyroscope
-	 * functionalities are enabled for the system. When set to true, data from
-	 * these sensors will be collected and utilized, typically for motion
-	 * detection or orientation tracking.
-	 *
-	 * @details This flag is often used in systems that require motion input for
-	 * functionality, such as gaming controllers, virtual reality devices, or
-	 * motion-sensing applications. Disabling this may reduce resource usage but
-	 * will disable motion-based features.
-	 */
-	bool bEnableAccelerometerAndGyroscope;
-	/**
-	 * @var bIsResetGyroscope
-	 * @brief Indicates whether the gyroscope reset operation is enabled.
-	 *
-	 * This boolean variable is used to determine if the gyroscope should be reset
-	 * to its default state. When set to true, the system will perform the
-	 * necessary operations to reset and recalibrate the gyroscope. When set to
-	 * false, the gyroscope continues operating without reset.
-	 *
-	 * @details The variable is typically utilized in applications or systems
-	 * where gyroscope functionality is integrated, such as motion sensing
-	 * for gaming controllers, virtual reality devices, or other motion-driven
-	 * systems. Resetting the gyroscope might be necessary in scenarios where
-	 * recalibration is required due to drift or unexpected behavior.
-	 */
-	bool bIsResetGyroscope = false;
 	/**
 	 * @brief Represents the context of a Human Interface Device (HID) used by
 	 * DualSense controllers.

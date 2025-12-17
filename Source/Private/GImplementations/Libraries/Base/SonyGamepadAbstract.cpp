@@ -13,22 +13,22 @@ void SonyGamepadAbstract::ShutdownLibrary()
 
 void SonyGamepadAbstract::EnableTouch(const bool bIsTouch)
 {
-	bEnableTouch = bIsTouch;
+	HIDDeviceContexts.bEnableTouch = bIsTouch;
 }
 
 void SonyGamepadAbstract::EnableGesture(const bool bIsTouch)
 {
-	bEnableGesture = bIsTouch;
+	HIDDeviceContexts.bEnableGesture = bIsTouch;
 }
 
 void SonyGamepadAbstract::ResetGyroOrientation()
 {
-	bIsResetGyroscope = true;
+	HIDDeviceContexts.bIsResetGyroscope = true;
 }
 
 void SonyGamepadAbstract::EnableMotionSensor(bool bIsMotionSensor)
 {
-	bEnableAccelerometerAndGyroscope = bIsMotionSensor;
+	HIDDeviceContexts.bEnableAccelerometerAndGyroscope = bIsMotionSensor;
 }
 
 float SonyGamepadAbstract::GetBattery()
