@@ -125,7 +125,7 @@ graph BT
    #include "Platforms/Windows/WindowsHardwarePolicy.h"
 ```cpp
 // Define a registry using the Windows Policy
-using MyDeviceRegistry = GamepadCore::TBasicDeviceRegistry<WindowsHardwarePolicy>;
+using MyHardwareRegistry = GamepadCore::TBasicDeviceRegistry<WindowsHardwarePolicy>;
 
 int main() {
 auto registry = std::make_unique<MyDeviceRegistry>();
