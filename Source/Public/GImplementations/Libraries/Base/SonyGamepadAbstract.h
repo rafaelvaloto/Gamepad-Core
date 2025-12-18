@@ -61,7 +61,7 @@ public:
 	 * the gamepad's state is continuously synchronized with the current input
 	 * conditions, supporting real-time interaction within the application.
 	 */
-	void UpdateInput(float Delta) override {}
+	void UpdateInput(float /*Delta*/) override {}
 	/**
 	 * Pure virtual function that checks the connection status of the gamepad.
 	 *
@@ -95,9 +95,9 @@ public:
 	 * the termination of all ongoing processes.
 	 */
 	void ResetLights() override {}
-	void SetLightbar(DSCoreTypes::FDSColor Color) override {}
-	void SetLightbarFlash(DSCoreTypes::FDSColor Color, float BrithnessTime, float ToggleTime) override {}
-	void DualSenseSettings(std::uint8_t bIsMic, std::uint8_t bIsHeadset, std::uint8_t bIsSpeaker, std::uint8_t MicVolume, std::uint8_t AudioVolume, std::uint8_t RumbleMode, std::uint8_t RumbleReduce, std::uint8_t TriggerReduce) override {}
+	void SetLightbar(DSCoreTypes::FDSColor /*Color*/) override {}
+	void SetLightbarFlash(DSCoreTypes::FDSColor /*Color*/, float /*BrithnessTime*/, float /*ToggleTime*/) override {}
+	void DualSenseSettings(std::uint8_t /*bIsMic*/, std::uint8_t /*bIsHeadset*/, std::uint8_t /*bIsSpeaker*/, std::uint8_t /*MicVolume*/, std::uint8_t /*AudioVolume*/, std::uint8_t /*RumbleMode*/, std::uint8_t /*RumbleReduce*/, std::uint8_t /*TriggerReduce*/) override {}
 
 	/**
 	 * Sets the LED associated with the player on the Sony gamepad to a specified
@@ -108,14 +108,14 @@ public:
 	 * @param Brightness The desired brightness level for the LED, represented as
 	 * an ELedBrightnessEnum.
 	 */
-	void SetPlayerLed(EDSPlayer Led, std::uint8_t Brightness) override {}
+	void SetPlayerLed(EDSPlayer /*Led*/, std::uint8_t /*Brightness*/) override {}
 	/**
 	 * Sets the state of the microphone LED on the gamepad.
 	 *
 	 * @param Led The desired state of the microphone LED, represented by
 	 * ELedMicEnum.
 	 */
-	void SetMicrophoneLed(EDSMic Led) override {}
+	void SetMicrophoneLed(EDSMic /*Led*/) override {}
 	/**
 	 * Sets the touch state for the device.
 	 *
@@ -165,7 +165,7 @@ public:
 	 * values.
 	 *
 	 */
-	void SetVibration(std::uint8_t LeftRumble, std::uint8_t RightRumble) override {}
+	void SetVibration(std::uint8_t /*LeftRumble*/, std::uint8_t /*RightRumble*/) override {}
 
 	SonyGamepadAbstract()
 	    : HIDDeviceContexts()
