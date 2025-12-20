@@ -34,7 +34,7 @@ Since **GamepadCore** is decoupled from game engines, it serves as the backend l
 | Engine | Project                                                                                                | Description |
 | :--- |:-------------------------------------------------------------------------------------------------------| :--- |
 | <img src="https://upload.wikimedia.org/wikipedia/commons/6/6a/Godot_icon.svg" width="40"/>  | [**Godot-Dualsense**](https://github.com/rafaelvaloto/Godot-Dualsense)                                 | A GDExtension wrapper exposing features to GDScript via Signals. |
-| <img src="https://upload.wikimedia.org/wikipedia/commons/2/20/UE_Logo_Black_Centered.svg" width="40"/>  | [**Unreal-Dualsense**](https://github.com/rafaelvaloto/WindowsDualsenseUnreal/tree/v2.0.0-development) | A UE5 Plugin implementation demonstrating how to map raw HID to Unreal's Subsystem and Input mappings. |
+| <img src="https://upload.wikimedia.org/wikipedia/commons/2/20/UE_Logo_Black_Centered.svg" width="40"/>  | [**Unreal-Dualsense**](https://github.com/rafaelvaloto/WindowsDualsenseUnreal/tree/v2.0.0-pre-release) | A UE5 Plugin implementation demonstrating how to map raw HID to Unreal's Subsystem and Input mappings. |
 
 > 💡 **Why this matters:** This proves that the core logic (HID parsing, Haptics, Trigger math) is written once and reused everywhere.
 
@@ -124,8 +124,8 @@ graph BT
    #include "GCore/Templates/TBasicDeviceRegistry.h"
    #include "Platforms/Windows/WindowsHardwarePolicy.h"
 ```cpp
-// Define a registry using the Windows Policy
-using MyDeviceRegistry = GamepadCore::TBasicDeviceRegistry<WindowsHardwarePolicy>;
+// defines the communication between the operating system hardware and the gamepad core library. using the Windows Policy (e.g,. Linux, Mac)..
+using MyHardwareRegistry = GamepadCore::TBasicDeviceRegistry<WindowsHardwarePolicy>;
 
 int main() {
 auto registry = std::make_unique<MyDeviceRegistry>();
