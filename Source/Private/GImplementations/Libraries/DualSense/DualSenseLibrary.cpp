@@ -120,7 +120,7 @@ void FDualSenseLibrary::UpdateInput(float /*Delta*/)
 	using namespace FGamepadInput;
 	DualSenseRaw(&Context->Buffer[Padding], InputToFill);
 
-	if (Context->bEnableGesture)
+	if (Context->bEnableGesture || Context->bEnableTouch)
 	{
 		using namespace FGamepadTouch;
 		ProcessTouch(&Context->Buffer[Padding], InputToFill);

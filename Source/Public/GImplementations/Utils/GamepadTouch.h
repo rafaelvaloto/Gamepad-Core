@@ -18,7 +18,7 @@ namespace FGamepadTouch
 			Input->TouchRadius = {DS_TOUCHPAD_WIDTH, DS_TOUCHPAD_HEIGHT};
 		}
 
-		Input->TouchId = (HIDInput[0x20] & 0x7F) % 10;
+		Input->TouchId = 1;
 		Input->bIsTouching = (HIDInput[0x20] & 0x80) != 0;
 		Input->DirectionRaw = HIDInput[0x28];
 
