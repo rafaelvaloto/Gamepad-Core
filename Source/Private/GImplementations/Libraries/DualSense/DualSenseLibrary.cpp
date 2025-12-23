@@ -82,7 +82,7 @@ bool FDualSenseLibrary::Initialize(const FDeviceContext& Context)
 		FOutputContext* EnableReport = &DSContext->Output;
 		// Set flags to enable control over the lightbar, player LEDs
 		EnableReport->Feature.FeatureMode = 0b00000111;
-		EnableReport->Lightbar = {222, 0, 0};
+		EnableReport->Lightbar = {0, 0, 255};
 		EnableReport->PlayerLed.Brightness = 0x00;
 		UpdateOutput();
 		std::this_thread::sleep_for(std::chrono::milliseconds(100));

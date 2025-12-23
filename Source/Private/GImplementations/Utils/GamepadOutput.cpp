@@ -98,7 +98,7 @@ void FGamepadOutput::OutputDualSense(
 		}
 
 		IPlatformHardwareInfo::Get().Write(DeviceContext);
-		HidOut->Feature.FeatureMode = 0x7F;
+		HidOut->Feature.FeatureMode = 0x55;
 		return;
 	}
 
