@@ -28,6 +28,9 @@ namespace GamepadCore
 		{
 			t.ProcessAudioHaptic(ctx)
 		} -> std::same_as<void>;
+		{
+			t.InitializeAudioDevice(ctx)
+		} -> std::same_as<void>;
 	};
 
 	template<typename THardwarePolicy>
@@ -66,6 +69,11 @@ namespace GamepadCore
 		void ProcessAudioHapitc(FDeviceContext* Context) override
 		{
 			Policy.ProcessAudioHaptic(Context);
+		}
+
+		void InitializeAudioDevice(FDeviceContext* Context) override
+		{
+			Policy.InitializeAudioDevice(Context);
 		}
 
 		THardwarePolicy& GetPolicy() { return Policy; }

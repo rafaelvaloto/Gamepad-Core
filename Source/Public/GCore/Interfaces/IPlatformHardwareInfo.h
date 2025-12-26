@@ -145,6 +145,18 @@ public:
 	 */
 	virtual void ProcessAudioHapitc(FDeviceContext* Context) = 0;
 	/**
+	 * Processes audio haptic feedback for the given device context.
+	 *
+	 * Derived classes must implement this method to enable platform-specific
+	 * handling of audio input and its transformation into haptic output. This is
+	 * typically used for creating immersive feedback experiences where audio
+	 * signals drive haptic responses.
+	 *
+	 * @param Context Pointer to the device context used to process audio haptic
+	 * feedback.
+	 */
+	virtual void InitializeAudioDevice(FDeviceContext* Context) = 0;
+	/**
 	 * Default constructor for the IIPlatformHardwareInfo.
 	 *
 	 * This protected constructor ensures that instances of the interface cannot

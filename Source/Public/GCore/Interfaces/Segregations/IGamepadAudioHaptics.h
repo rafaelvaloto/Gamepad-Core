@@ -14,12 +14,28 @@ class IGamepadAudioHaptics
 	// inherited to implement this interface.
 public:
 	virtual ~IGamepadAudioHaptics() = default;
+
 	/**
-	 * Updates the haptic feedback on a gamepad's triggers using audio waveform
-	 * data.
+	 * Updates the audio haptic feedback using the provided audio data.
+	 * This method is expected to be implemented by subclasses to process
+	 * and utilize the given audio data for triggering haptic feedback.
 	 *
-	 * @param AudioData An array of integer values representing the audio waveform
-	 * data used to drive the haptic feedback effects on the triggers.
+	 * @param AudioData A vector of unsigned 8-bit integers representing
+	 *                  the audio data to be used for haptic feedback.
+	 *                  The data is typically interpreted and processed
+	 *                  to generate corresponding haptic effects.
 	 */
 	virtual void AudioHapticUpdate(std::vector<std::uint8_t> AudioData) = 0;
+	/**
+	 * Updates the audio haptic feedback using the provided multi-channel audio data.
+	 * This method should be implemented by subclasses to process and utilize
+	 * the given multi-dimensional audio data for delivering precise haptic effects.
+	 *
+	 * @param AudioData A two-dimensional vector where each inner vector represents
+	 *                  audio samples for a specific channel. The samples are
+	 *                  represented as 16-bit signed integers. The data is intended
+	 *                  to be processed to create corresponding multi-channel haptic
+	 *                  feedback effects.
+	 */
+	virtual void AudioHapticUpdate(std::vector<std::vector<std::int16_t>> AudioData) = 0;
 };
