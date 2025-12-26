@@ -1,14 +1,13 @@
 ﻿#pragma once
 
 #if _WIN32
-#include <mmdeviceapi.h>
 #include <audioclient.h>
+#include <mmdeviceapi.h>
 #endif
 
-
 #if _WIN32
-#include <mmdeviceapi.h>
 #include <audioclient.h>
+#include <mmdeviceapi.h>
 
 #ifdef PlaySound
 #undef PlaySound
@@ -17,38 +16,50 @@
 
 struct FAudioDeviceContext
 {
-    FAudioDeviceContext() = default;
+	FAudioDeviceContext() = default;
 
-    ~FAudioDeviceContext()
-    {
-        Close();
-    }
+	~FAudioDeviceContext()
+	{
+		Close();
+	}
 
-    void Close()
-    {
+	void Close()
+	{
 #if _WIN32
-        if (RenderClient) { RenderClient->Release(); RenderClient = nullptr; }
-        if (AudioClient) { AudioClient->Stop(); AudioClient->Release(); AudioClient = nullptr; }
-        if (Device) { Device->Release(); Device = nullptr; }
+		if (RenderClient)
+		{
+			RenderClient->Release();
+			RenderClient = nullptr;
+		}
+		if (AudioClient)
+		{
+			AudioClient->Stop();
+			AudioClient->Release();
+			AudioClient = nullptr;
+		}
+		if (Device)
+		{
+			Device->Release();
+			Device = nullptr;
+		}
 #endif
-    }
+	}
 
-    bool IsValid() const
-    {
+	bool IsValid() const
+	{
 #if _WIN32
-        return Device != nullptr && AudioClient != nullptr && RenderClient != nullptr;
+		return Device != nullptr && AudioClient != nullptr && RenderClient != nullptr;
 #endif
-    }
-
+	}
 
 public:
 #if _WIN32
-    IMMDevice* Device = nullptr;
-    IAudioClient* AudioClient = nullptr;
-    IAudioRenderClient* RenderClient = nullptr;
-    WAVEFORMATEX* MixFormat = nullptr;
+	IMMDevice* Device = nullptr;
+	IAudioClient* AudioClient = nullptr;
+	IAudioRenderClient* RenderClient = nullptr;
+	WAVEFORMATEX* MixFormat = nullptr;
 #endif
 
-    int SampleRate = 48000;
-    int NumChannels = 4;
+	int SampleRate = 48000;
+	int NumChannels = 4;
 };

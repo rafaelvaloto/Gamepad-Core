@@ -296,22 +296,37 @@ void FDualSenseLibrary::AudioHapticUpdate(std::vector<std::uint8_t> Data)
 void FDualSenseLibrary::AudioHapticUpdate(std::vector<std::vector<std::int16_t>> AudioData)
 {
 	FDeviceContext* Context = GetMutableDeviceContext();
-	if (!Context || !Context->AudioContext || !Context->AudioContext->IsValid()) return;
+	if (!Context || !Context->AudioContext || !Context->AudioContext->IsValid())
+	{
+		return;
+	}
 
 	IAudioClient* pAudioClient = Context->AudioContext->AudioClient;
 	IAudioRenderClient* pRenderClient = Context->AudioContext->RenderClient;
 
 	std::uint32_t BufferFrameCount, NumFramesPadding;
-	if (FAILED(pAudioClient->GetBufferSize(&BufferFrameCount))) return;
-	if (FAILED(pAudioClient->GetCurrentPadding(&NumFramesPadding))) return;
+	if (FAILED(pAudioClient->GetBufferSize(&BufferFrameCount)))
+	{
+		return;
+	}
+	if (FAILED(pAudioClient->GetCurrentPadding(&NumFramesPadding)))
+	{
+		return;
+	}
 
 	std::uint32_t NumFramesAvailable = BufferFrameCount - NumFramesPadding;
 	std::uint32_t FramesToWrite = std::min<std::uint32_t>(NumFramesAvailable, static_cast<std::uint32_t>(AudioData.size()));
 
-	if (FramesToWrite == 0) return;
+	if (FramesToWrite == 0)
+	{
+		return;
+	}
 
 	unsigned char* pBuffer;
-	if (FAILED(pRenderClient->GetBuffer(FramesToWrite, &pBuffer))) return;
+	if (FAILED(pRenderClient->GetBuffer(FramesToWrite, &pBuffer)))
+	{
+		return;
+	}
 
 	float* pSampleBuffer = reinterpret_cast<float*>(pBuffer);
 	std::uint32_t Channels = Context->AudioContext->NumChannels;

@@ -385,7 +385,7 @@ public:
 	 * DualSense controllers.
 	 */
 	virtual void AudioHapticUpdate(std::vector<std::uint8_t> Data) override;
-	virtual void  AudioHapticUpdate(std::vector<std::vector<std::int16_t>> AudioData) override;
+	virtual void AudioHapticUpdate(std::vector<std::vector<std::int16_t>> AudioData) override;
 
 private:
 	/**

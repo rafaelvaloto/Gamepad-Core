@@ -3,10 +3,10 @@
 // Description: Cross-platform library for DualSense and generic gamepad input support.
 // Targets: Windows, Linux, macOS.
 #pragma once
-#include "AudioContext.h"
 #include "../../DSCoreTypes.h"
 #include "../../ECoreGamepad.h"
 #include "../Config/GamepadCalibration.h"
+#include "AudioContext.h"
 #include "InputContext.h"
 #include "OutputContext.h"
 
