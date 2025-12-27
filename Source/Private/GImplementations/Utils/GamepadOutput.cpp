@@ -78,30 +78,8 @@ void FGamepadOutput::OutputDualSense(
 	}
 
 	unsigned char* Output = &DeviceContext->BufferOutput[Padding];
-	if (Padding == 2 && HidOut->Feature.FeatureMode == 0b00000111)
-	{
-		Output[0] = HidOut->Feature.VibrationMode;
-		Output[38] ^= 0x01;
-		if (DeviceContext->ConnectionType == EDSDeviceConnection::Bluetooth)
-		{
-			const std::int32_t CrcChecksum =
-			    static_cast<std::int32_t>(Compute(DeviceContext->BufferOutput, 74));
-			DeviceContext->BufferOutput[0x4A] =
-			    static_cast<unsigned char>((CrcChecksum & 0x000000FF) >> 0UL);
-			DeviceContext->BufferOutput[0x4B] =
-			    static_cast<unsigned char>((CrcChecksum & 0x0000FF00) >> 8UL);
-			DeviceContext->BufferOutput[0x4C] =
-			    static_cast<unsigned char>((CrcChecksum & 0x00FF0000) >> 16UL);
-			DeviceContext->BufferOutput[0x4D] =
-			    static_cast<unsigned char>((CrcChecksum & 0xFF000000) >> 24UL);
-		}
-
-		IPlatformHardwareInfo::Get().Write(DeviceContext);
-		return;
-	}
-
 	Output[0] = HidOut->Feature.VibrationMode;
-	Output[1] = 0xF7;
+	Output[1] = HidOut->Feature.FeatureMode;
 	Output[2] = HidOut->Rumbles.Left;
 	Output[3] = HidOut->Rumbles.Right;
 	Output[4] = HidOut->Audio.HeadsetVolume;
@@ -112,7 +90,6 @@ void FGamepadOutput::OutputDualSense(
 	Output[8] = HidOut->Audio.MicStatus == 1 ? 0x01 : 0x00;
 	Output[36] = (HidOut->Feature.TriggerSoftnessLevel << 4) | (HidOut->Feature.SoftRumbleReduce & 0x0F);
 	Output[38] ^= 0x01;
-	// Output[41] = 0x00;
 	Output[42] = HidOut->PlayerLed.Brightness;
 	Output[43] = HidOut->PlayerLed.Led;
 	Output[44] = HidOut->Lightbar.R;
@@ -144,6 +121,7 @@ void FGamepadOutput::OutputDualSense(
 		    static_cast<unsigned char>((CrcChecksum & 0xFF000000) >> 24UL);
 	}
 
+	DeviceContext->OuputLocked();
 	IPlatformHardwareInfo::Get().Write(DeviceContext);
 }
 
@@ -286,6 +264,8 @@ void FGamepadOutput::SendAudioHapticAdvanced(
 		    static_cast<unsigned char>((CrcChecksum & 0x00FF0000) >> 16UL);
 		DeviceContext->BufferAudio[CrcOffset + 3] =
 		    static_cast<unsigned char>((CrcChecksum & 0xFF000000) >> 24UL);
+
+		DeviceContext->OuputAudioLocked();
 		IPlatformHardwareInfo::Get().ProcessAudioHapitc(DeviceContext);
 	}
 }

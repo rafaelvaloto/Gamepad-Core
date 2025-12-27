@@ -103,6 +103,7 @@ struct FDeviceContext
 	 * feedback mechanisms driven by audio signals.
 	 */
 	unsigned char BufferAudio[142] = {};
+	unsigned char BufferAudioLock[142] = {};
 	/**
 	 * A fixed-size buffer for storing input or output data associated with a
 	 * device context. This buffer is utilized for reading device input reports or
@@ -118,6 +119,7 @@ struct FDeviceContext
 	 * sufficient data handling capabilities.
 	 */
 	unsigned char BufferOutput[78] = {};
+	unsigned char BufferOutputLock[78] = {};
 	/**
 	 * @brief Holds calibration data for a gamepad device.
 	 *
@@ -270,6 +272,8 @@ protected:
 	 * modification issues.
 	 */
 	mutable std::mutex InputMutex;
+	mutable std::mutex OutputMutex;
+	mutable std::mutex AudioLocked;
 
 public:
 	FDeviceContext() = default;
@@ -285,8 +289,6 @@ public:
 
 			std::memcpy(Buffer, Other.Buffer, sizeof(Buffer));
 			std::memcpy(BufferDS4, Other.BufferDS4, sizeof(BufferDS4));
-			std::memcpy(BufferAudio, Other.BufferAudio, sizeof(BufferAudio));
-			std::memcpy(BufferOutput, Other.BufferOutput, sizeof(BufferOutput));
 
 			// Auxiliary state variables
 			bEnableTouch = Other.bEnableTouch;
@@ -300,11 +302,7 @@ public:
 			DeviceType = Other.DeviceType;
 			ConnectionType = Other.ConnectionType;
 
-			bOverrideTriggerBytes = Other.bOverrideTriggerBytes;
-			std::memcpy(OverrideTriggerRight, Other.OverrideTriggerRight,
-			            sizeof(OverrideTriggerRight));
-			std::memcpy(OverrideTriggerLeft, Other.OverrideTriggerLeft,
-			            sizeof(OverrideTriggerLeft));
+
 
 			ButtonStates = Other.ButtonStates;
 			AnalogStates = Other.AnalogStates;
@@ -330,5 +328,29 @@ public:
 	{
 		std::lock_guard<std::mutex> Lock(InputMutex);
 		InputGameThread = Input;
+	}
+
+	void OuputLocked()
+	{
+		std::lock_guard<std::mutex> Lock(OutputMutex);
+		std::memcpy(BufferOutputLock, BufferOutput, sizeof(BufferOutputLock));
+	}
+
+	unsigned char* GetOuputLocked()
+	{
+		std::lock_guard<std::mutex> Lock(OutputMutex);
+		return BufferOutputLock;
+	}
+
+	void OuputAudioLocked()
+	{
+		std::lock_guard<std::mutex> Lock(AudioLocked);
+		std::memcpy(BufferAudioLock, BufferAudio, sizeof(BufferAudioLock));
+	}
+
+	unsigned char* GetAudioLocked()
+	{
+		std::lock_guard<std::mutex> Lock(AudioLocked);
+		return BufferOutputLock;
 	}
 };
