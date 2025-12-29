@@ -1,5 +1,7 @@
 cmake_minimum_required(VERSION 3.20)
-
+if(WIN32)
+    add_compile_definitions(UNICODE _UNICODE)
+endif()
 # Collect sources/headers. CONFIGURE_DEPENDS makes CMake reconfigure when files are added/removed.
 file(GLOB_RECURSE GAMEPADCORE_HEADERS CONFIGURE_DEPENDS
         "${CMAKE_CURRENT_SOURCE_DIR}/Public/*.h"

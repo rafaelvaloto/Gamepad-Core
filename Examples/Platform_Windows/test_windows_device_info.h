@@ -1,8 +1,9 @@
 // Copyright (c) 2025 Rafael Valoto/Publisher. All rights reserved.
 // Created for: WindowsDualsense_ds5w - Plugin to support DualSense controller on Windows.
 // Planned Release Year: 2025
-#ifdef BUILD_GAMEPAD_CORE_TESTS
 #pragma once
+#ifdef BUILD_GAMEPAD_CORE_TESTS
+
 
 #ifdef _WIN32
 // O NOMINMAX é crucial para evitar que o windows.h defina macros de min/max
@@ -11,7 +12,7 @@
 #define NOMINMAX
 #endif
 
-#include <windows.h>
+#include <Windows.h>
 #endif
 
 #include "GCore/Types/DSCoreTypes.h"

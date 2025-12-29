@@ -2,8 +2,8 @@
 // Project: GamepadCore
 // Description: Cross-platform library for DualSense and generic gamepad input support.
 // Targets: Windows, Linux, macOS.
-#ifdef BUILD_GAMEPAD_CORE_TESTS
 #pragma once
+#ifdef BUILD_GAMEPAD_CORE_TESTS
 #include "test_linux_device_info.h"
 #include "GCore/Templates/TGenericHardwareInfo.h"
 
