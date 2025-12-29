@@ -123,31 +123,72 @@ graph BT
    The registry periodically scans for new devices and updates their connection states.
    #include "GCore/Templates/TBasicDeviceRegistry.h"
    #include "Platforms/Windows/WindowsHardwarePolicy.h"
-```cpp
-// defines the communication between the operating system hardware and the gamepad core library. using the Windows Policy (e.g,. Linux, Mac)..
-using MyHardwareRegistry = GamepadCore::TBasicDeviceRegistry<WindowsHardwarePolicy>;
 
+Policy Setup:
+```cpp
+// defines the communication between the operating system hardware and the gamepad core library. 
+// Using the Windows Policy (e.g,. Linux, Mac)..
+#ifdef _WIN32
+    #include "../../Examples/Platform_Windows/WindowsHardwarePolicy.h"
+    using TestHardwarePolicy = FWindowsPlatform::FWindowsHardwarePolicy;
+    using TestHardwareInfo   = FWindowsPlatform::FWindowsHardware;
+#else
+    // Linux Fallback
+    #include "../../Examples/Platform_Linux/LinuxHardwarePolicy.h"
+    using TestHardwarePolicy = FLinuxPlatform::FLinuxHardwarePolicy;
+    using TestHardwareInfo   = FLinuxPlatform::FLinuxHardware;
+#endif
+
+#include "../../Examples/Adapters/Tests/Test_DeviceRegistryPolicy.h"
+using TDeviceRegistry = GamepadCore::TBasicDeviceRegistry<Test_DeviceRegistryPolicy>;
+```
+
+Main Loop:
+```cpp
 int main() {
-    auto registry = std::make_unique<MyDeviceRegistry>();
+    // 1. Inicializa o Hardware
+    auto HardwareImpl = std::make_unique<TestHardwareInfo>();
+    IPlatformHardwareInfo::SetInstance(std::move(HardwareImpl));
+
+    // 2. Inicializa o Registry
+    auto Registry = std::make_unique<TDeviceRegistry>();
+
+    std::cout << "[System] Waiting for controller connection via USB/BT..." << std::endl;
 
     // Main Loop
-    while (true) {
-        // 1. Detect devices
-        registry->PlugAndPlay(0.016f); // DeltaTime
-        
-        // 2. Access a connected gamepad
-        auto* gamepad = registry->GetLibrary(0); // ID 0
-        
-        if (gamepad) {
-            // Send specific HID command (e.g., Set Lightbar to Red)
-            gamepad->SetLightbarColor(255, 0, 0); 
+    while (true)
+    {
+        // frame ~60 FPS
+        std::this_thread::sleep_for(std::chrono::milliseconds(16));
+        float DeltaTime = 0.016f;
+
+        Registry->PlugAndPlay(DeltaTime); // Scan for new devices
+
+        ISonyGamepad* Gamepad = Registry->GetLibrary(TargetDeviceId); // Get the Gamepad instance
+
+        if (Gamepad && Gamepad->IsConnected())
+        {
+            if (!bWasConnected)
+            {
+                bWasConnected = true;
+                std::cout << ">>> CONTROLLER CONNECTED! <<<" << std::endl;
+
+                Gamepad->SetLightbar({0, 255, 0});
+                Gamepad->SetPlayerLed(EDSPlayer::One, 255);
+            }
+
+            Gamepad->UpdateInput(DeltaTime);
+            FDeviceContext* Context = Gamepad->GetMutableDeviceContext();
             
-            // Trigger Effect: Resistance
-            gamepad->GetIGamepadTrigger()->SetTriggerEffect(
-                TriggerId::Right, 
-                TriggerMode::Resistance, 
-                0, 255
-            );
+            FInputContext InputState = Context->GetInputState();
+            if (InputState.bCross)
+            {
+            }
+            
+            auto Trigger = Gamepad->GetIGamepadTrigger();
+            if (Trigger) {
+                 Trigger->SetGameCube(EDSGamepadHand::Right);
+            }
         }
     }
 }
