@@ -1,7 +1,7 @@
 // Copyright (c) 2025 Rafael Valoto/Publisher. All rights reserved.
 // Created for: WindowsDualsense_ds5w - Plugin to support DualSense controller on Windows.
 // Planned Release Year: 2025
-
+#ifdef BUILD_GAMEPAD_CORE_TESTS
 
 #include "test_windows_device_info.h"
 
@@ -286,3 +286,4 @@ void Ftest_windows_device_info::ConfigureFeatures(FDeviceContext* Context)
 
 	Context->Calibration = Calibration;
 }
+#endif

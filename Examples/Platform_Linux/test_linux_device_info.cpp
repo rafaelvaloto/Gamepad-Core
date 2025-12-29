@@ -1,7 +1,7 @@
 // Copyright (c) 2025 Rafael Valoto/Publisher. All rights reserved.
 // Created for: WindowsDualsense_ds5w - Plugin to support DualSense controller on Windows.
 // Planned Release Year: 2025
-
+#ifdef BUILD_GAMEPAD_CORE_TESTS
 #include "test_linux_device_info.h"
 
 #ifdef __unix__
@@ -206,4 +206,5 @@ void FCommonsDeviceInfo::InvalidateHandle(FDeviceContext* Context)
 		std::memset(Context->BufferAudio, 0, sizeof(Context->BufferAudio));
 	}
 }
+#endif
 #endif

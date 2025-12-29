@@ -1,4 +1,5 @@
-﻿#include <iostream>
+﻿#ifdef BUILD_GAMEPAD_CORE_TESTS
+#include <iostream>
 #include <thread>
 #include <chrono>
 #include <memory>
@@ -263,3 +264,4 @@ int main()
     }
     return 0;
 }
+#endif

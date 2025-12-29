@@ -1,6 +1,7 @@
 ﻿cmake_minimum_required(VERSION 3.20)
 
 project(GamepadCoreIntegrationTest)
+add_definitions(-DBUILD_GAMEPAD_CORE_TESTS)
 
 # Define o padrão C++20
 set(CMAKE_CXX_STANDARD 20)
@@ -34,6 +35,7 @@ elseif(UNIX AND NOT APPLE)
     list(APPEND PLATFORM_LIBS ${SDL2_LIBRARIES})
     include_directories(${SDL2_INCLUDE_DIRS})
 endif()
+
 
 # 2. Criar o Executável
 # Incluímos o main.cpp E o arquivo de implementação da plataforma (WindowsDeviceInfo.cpp)

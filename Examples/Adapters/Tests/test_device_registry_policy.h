@@ -1,6 +1,7 @@
 // Copyright (c) 2025 Rafael Valoto. All Rights Reserved.
 // Project: GamepadCore - Adapter Example
 // Description: Example implementation of DeviceRegistry Policy for Tests.
+#ifdef BUILD_GAMEPAD_CORE_TESTS
 #pragma once
 #include <stdint.h>
 struct Ftest_device_registry_policy
@@ -34,3 +35,4 @@ public:
 	}
 
 };
+#endif
