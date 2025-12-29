@@ -20,7 +20,7 @@ Modern, policy-based C++ library for advanced gamepad features (DualSense/DS4). 
 </div>
 </p>
 
-## DualSense & DualShock
+## 🎮 DualSense & DualShock
 Simple cross-platform integration for DualSense & DualShock compatible with any engine. A complete, easily customizable framework tested and validated on Unreal Engine and Godot.
 
 **GamepadCore** is a high-performance, platform-agnostic C++ library designed to handle raw HID communication with game controllers. It bypasses generic abstraction layers (like XInput or SDL) to unlock hardware-specific features often inaccessible in standard APIs.
@@ -79,68 +79,6 @@ Once the console application is running, use your DualSense to test the features
 
 > **Note:** The console will log the raw HID output for debugging purposes as you press buttons.
 >
-
-## 🏛️ Architecture Overview
-
-The library follows a strict separation of concerns to ensure portability. By using **Policy-Based Design**, the core logic remains pure C++, while platform-specific details (like how Windows handles USB vs. how Linux handles HID) are injected externally.
-
-### 1. GCore (Abstract Layer)
-The stable heart of the library. It defines generic interfaces (`IGamepad`, `IGamepadTrigger`) and the Device Registry logic. It knows **nothing** about the specific OS or Engine, ensuring the code is completely portable.
-
-### 2. Platform Policy (The Bridge)
-This is where the flexibility lies. You provide a "Policy" class that tells the Core *how* to identify and communicate with devices on your specific environment.
-* **Example:** `WindowsHardwarePolicy` uses `setupapi.h`, while a custom `GodotRegistryPolicy` hooks into Godot's internal callbacks.
-
-### 3. Implementations (The Drivers)
-Contains the specific HID protocol logic (byte arrays) for the hardware itself.
-* **SonyGamepadAbstract:** Handles logic shared between PS4/PS5.
-* **DualSenseLibrary:** Handles specific DualSense features (Adaptive Triggers, Haptics, Lightbar) by interpreting raw input/output reports.
-
-```mermaid
-graph BT
-    %% BT = Bottom to Top (Faz o Core subir)
-
-    %% Styling
-    classDef core fill:#e1f5fe,stroke:#01579b,stroke-width:2px,color:#000;
-    classDef adapter fill:#fff9c4,stroke:#fbc02d,stroke-width:2px,color:#000;
-    classDef engine fill:#f3e5f5,stroke:#7b1fa2,stroke-width:2px,color:#000;
-    classDef platform fill:#e0f2f1,stroke:#00695c,stroke-width:2px,stroke-dasharray: 5 5,color:#000;
-
-    subgraph Framework ["🧠 GamepadCore (Pure C++ Library)"]
-        direction TB
-        GC["<b>GCore</b><br>Interfaces, Templates & Registry Logic"]:::core
-        GI["<b>GImplementations</b><br>HID Parsing & Sony Protocol"]:::core
-        
-        %% Inverti internamente para o GCore ficar acima das Implementações
-        GI --> GC 
-    end
-
-    subgraph HAL ["💻 Platform Abstraction Layer"]
-        Win["<b>Windows Policy</b><br>(SetupAPI / HID)"]:::platform
-        Lin["<b>Linux Policy</b><br>(SDL / HIDAPI)"]:::platform
-    end
-
-    subgraph Adapters ["🔌 Adapters Layer (The Bridge)"]
-        direction TB
-        UE_Adp["<b>Unreal Adapter</b><br>(DeviceRegistryPolicy)"]:::adapter
-        GD_Adp["<b>Godot Adapter</b><br>(GodotRegistryPolicy)"]:::adapter
-        Other_Adp["<b>Custom Adapter</b><br>(Unity / O3DE Policy)"]:::adapter
-    end
-
-    subgraph Engines ["🎮 Target Engines (Clients)"]
-        UE["Unreal Engine 5"]:::engine
-        GD["Godot 4.x"]:::engine
-        Other["O3DE / Custom Engine"]:::engine
-    end
-
-    %% Relations (O sentido da seta mantém a lógica de injeção, mas o BT joga o alvo pra cima)
-    HAL -.->|"Injects Hardware Access"| Framework
-    Adapters -.->|"Injects Engine Behavior"| Framework
-    
-    UE ==> UE_Adp
-    GD ==> GD_Adp
-    Other ==> Other_Adp
-```
 
 ## 💻 Integration Example
 1. Basic Setup (C++ Standalone)
@@ -219,6 +157,70 @@ int main() {
     }
 }
 ```
+
+
+## 🏛️ Architecture Overview
+
+The library follows a strict separation of concerns to ensure portability. By using **Policy-Based Design**, the core logic remains pure C++, while platform-specific details (like how Windows handles USB vs. how Linux handles HID) are injected externally.
+
+### 1. GCore (Abstract Layer)
+The stable heart of the library. It defines generic interfaces (`IGamepad`, `IGamepadTrigger`) and the Device Registry logic. It knows **nothing** about the specific OS or Engine, ensuring the code is completely portable.
+
+### 2. Platform Policy (The Bridge)
+This is where the flexibility lies. You provide a "Policy" class that tells the Core *how* to identify and communicate with devices on your specific environment.
+* **Example:** `WindowsHardwarePolicy` uses `setupapi.h`, while a custom `GodotRegistryPolicy` hooks into Godot's internal callbacks.
+
+### 3. Implementations (The Drivers)
+Contains the specific HID protocol logic (byte arrays) for the hardware itself.
+* **SonyGamepadAbstract:** Handles logic shared between PS4/PS5.
+* **DualSenseLibrary:** Handles specific DualSense features (Adaptive Triggers, Haptics, Lightbar) by interpreting raw input/output reports.
+
+```mermaid
+graph BT
+    %% BT = Bottom to Top (Faz o Core subir)
+
+    %% Styling
+    classDef core fill:#e1f5fe,stroke:#01579b,stroke-width:2px,color:#000;
+    classDef adapter fill:#fff9c4,stroke:#fbc02d,stroke-width:2px,color:#000;
+    classDef engine fill:#f3e5f5,stroke:#7b1fa2,stroke-width:2px,color:#000;
+    classDef platform fill:#e0f2f1,stroke:#00695c,stroke-width:2px,stroke-dasharray: 5 5,color:#000;
+
+    subgraph Framework ["🧠 GamepadCore (Pure C++ Library)"]
+        direction TB
+        GC["<b>GCore</b><br>Interfaces, Templates & Registry Logic"]:::core
+        GI["<b>GImplementations</b><br>HID Parsing & Sony Protocol"]:::core
+        
+        %% Inverti internamente para o GCore ficar acima das Implementações
+        GI --> GC 
+    end
+
+    subgraph HAL ["💻 Platform Abstraction Layer"]
+        Win["<b>Windows Policy</b><br>(SetupAPI / HID)"]:::platform
+        Lin["<b>Linux Policy</b><br>(SDL / HIDAPI)"]:::platform
+    end
+
+    subgraph Adapters ["🔌 Adapters Layer (The Bridge)"]
+        direction TB
+        UE_Adp["<b>Unreal Adapter</b><br>(DeviceRegistryPolicy)"]:::adapter
+        GD_Adp["<b>Godot Adapter</b><br>(GodotRegistryPolicy)"]:::adapter
+        Other_Adp["<b>Custom Adapter</b><br>(Unity / O3DE Policy)"]:::adapter
+    end
+
+    subgraph Engines ["🎮 Target Engines (Clients)"]
+        UE["Unreal Engine 5"]:::engine
+        GD["Godot 4.x"]:::engine
+        Other["O3DE / Custom Engine"]:::engine
+    end
+
+    %% Relations (O sentido da seta mantém a lógica de injeção, mas o BT joga o alvo pra cima)
+    HAL -.->|"Injects Hardware Access"| Framework
+    Adapters -.->|"Injects Engine Behavior"| Framework
+    
+    UE ==> UE_Adp
+    GD ==> GD_Adp
+    Other ==> Other_Adp
+```
+
 ## 🧪 Integration Tests & Examples
 
 
