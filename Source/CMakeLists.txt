@@ -17,7 +17,7 @@ file(GLOB_RECURSE GAMEPADCORE_SOURCES CONFIGURE_DEPENDS
 add_library(GamepadCore STATIC
         ${GAMEPADCORE_HEADERS}
         ${GAMEPADCORE_SOURCES}
-        Public/GCore/Types/Structs/Context/AudioContext.h
+        ../Tests/Integration/main.cpp
 )
 
 target_include_directories(GamepadCore
@@ -48,5 +48,5 @@ if (CLANG_FORMAT_EXE)
     )
 
     # If you REALLY want auto-format before each build, uncomment this:
-    # add_dependencies(GamepadCore GamepadCoreFormat)
+    add_dependencies(GamepadCore GamepadCoreFormat)
 endif()

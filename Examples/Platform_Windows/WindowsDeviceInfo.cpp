@@ -2,14 +2,24 @@
 // Created for: WindowsDualsense_ds5w - Plugin to support DualSense controller on Windows.
 // Planned Release Year: 2025
 
-#include "Platforms/Windows/WindowsDeviceInfo.h"
+#include "../Platform_Windows/WindowsDeviceInfo.h"
+
+
+extern "C" {
+#include <hidsdi.h>
+#include <hidpi.h>
+}
+
+#include "WindowsDeviceInfo.h"
+#include <vector>
 #include "GCore/Types/DSCoreTypes.h"
 #include "GCore/Types/Structs/Config/GamepadCalibration.h"
 #include "GCore/Types/Structs/Context/DeviceContext.h"
 #include "GImplementations/Utils/GamepadSensors.h"
 #include <filesystem>
-#include <hidsdi.h>
 #include <setupapi.h>
+#include <initguid.h>
+
 
 void FWindowsDeviceInfo::Detect(std::vector<FDeviceContext>& Devices)
 {
