@@ -4,7 +4,7 @@
 #include <godot_cpp/classes/engine.hpp>
 #include "Adapter/GodotDeviceRegistry.h"
 #include "API/GamepadDefs.h"
-#include "Platforms/Windows/WindowsHardwarePolicy.h"
+#include "Platforms/Windows/test_windows_hardware_policy.h"
 #include "GCore/Interfaces/IPlatformHardwareInfo.h"
 
 using namespace godot;

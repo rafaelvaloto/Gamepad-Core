@@ -4,11 +4,11 @@
 
 #pragma once
 
-#include "Core/Types/Structs/Context/DeviceContext.h"
+#include "GCore/Types/Structs/Context/DeviceContext.h"
 #include <memory>
 #include <vector>
 
-class FCommonsDeviceInfo
+class Ftest_linux_device_info
 {
 	/**
 	 * Virtual destructor for the FCommonsDeviceInfo class.
@@ -21,7 +21,7 @@ class FCommonsDeviceInfo
 	 * of derived class objects through base class pointers.
 	 */
 public:
-	~FCommonsDeviceInfo()
+	~Ftest_linux_device_info()
 	{
 	}
 

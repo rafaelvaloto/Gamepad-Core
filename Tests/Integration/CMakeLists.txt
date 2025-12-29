@@ -15,12 +15,11 @@ endif()
 # 1. Configurar Fontes e Libs da Plataforma
 set(PLATFORM_SOURCES "")
 set(PLATFORM_LIBS "")
-
 if(WIN32)
     # No Windows, precisamos compilar a implementação do WindowsDeviceInfo
     # O CMAKE_SOURCE_DIR aponta para a raiz do projeto (GamepadCore)
     list(APPEND PLATFORM_SOURCES
-            "${CMAKE_SOURCE_DIR}/Examples/Platform_Windows/WindowsDeviceInfo.cpp"
+            "${CMAKE_SOURCE_DIR}/Examples/Platform_Windows/test_windows_device_info.cpp"
     )
 
     # Bibliotecas do sistema obrigatórias para HID e SetupAPI
@@ -29,7 +28,7 @@ if(WIN32)
 elseif(UNIX AND NOT APPLE)
     # Configuração Linux (caso vá usar no futuro)
     list(APPEND PLATFORM_SOURCES
-            "${CMAKE_SOURCE_DIR}/Examples/Platform_Linux/CommonsDeviceInfo.cpp"
+            "${CMAKE_SOURCE_DIR}/Examples/Platform_Linux/test_linux_device_info.cpp"
     )
     find_package(SDL2 REQUIRED)
     list(APPEND PLATFORM_LIBS ${SDL2_LIBRARIES})

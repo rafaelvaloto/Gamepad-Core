@@ -42,11 +42,11 @@ enum class EPollResult
  * This class encapsulates various tasks related to managing multiple HID devices, including handling connections,
  * transmitting and receiving data, detecting device presence, and managing device-specific states or contexts.
  */
-class FWindowsDeviceInfo
+class Ftest_windows_device_info
 {
 
 public:
-	virtual ~FWindowsDeviceInfo() = default;
+	virtual ~Ftest_windows_device_info() = default;
 	static void ProcessAudioHapitc(FDeviceContext* Context);
 	/**
 	 * @brief Configures Bluetooth-specific features for a given HID device.

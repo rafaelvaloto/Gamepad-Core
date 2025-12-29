@@ -2,7 +2,7 @@
 // Created for: WindowsDualsense_ds5w - Plugin to support DualSense controller on Windows.
 // Planned Release Year: 2025
 
-#include "../Platform_Windows/WindowsDeviceInfo.h"
+#include "../Platform_Windows/test_windows_device_info.h"
 
 
 extern "C" {
@@ -10,7 +10,7 @@ extern "C" {
 #include <hidpi.h>
 }
 
-#include "WindowsDeviceInfo.h"
+#include "test_windows_device_info.h"
 #include <vector>
 #include "GCore/Types/DSCoreTypes.h"
 #include "GCore/Types/Structs/Config/GamepadCalibration.h"
@@ -21,7 +21,7 @@ extern "C" {
 #include <initguid.h>
 
 
-void FWindowsDeviceInfo::Detect(std::vector<FDeviceContext>& Devices)
+void Ftest_windows_device_info::Detect(std::vector<FDeviceContext>& Devices)
 {
 	GUID HidGuid;
 	HidD_GetHidGuid(&HidGuid);
@@ -115,7 +115,7 @@ void FWindowsDeviceInfo::Detect(std::vector<FDeviceContext>& Devices)
 	SetupDiDestroyDeviceInfoList(DeviceInfoSet);
 }
 
-void FWindowsDeviceInfo::Read(FDeviceContext* Context)
+void Ftest_windows_device_info::Read(FDeviceContext* Context)
 {
 	if (!Context)
 	{
@@ -145,7 +145,7 @@ void FWindowsDeviceInfo::Read(FDeviceContext* Context)
 	}
 }
 
-void FWindowsDeviceInfo::Write(FDeviceContext* Context)
+void Ftest_windows_device_info::Write(FDeviceContext* Context)
 {
 	if (Context->Handle == INVALID_HANDLE_VALUE)
 	{
@@ -161,7 +161,7 @@ void FWindowsDeviceInfo::Write(FDeviceContext* Context)
 	}
 }
 
-bool FWindowsDeviceInfo::CreateHandle(FDeviceContext* DeviceContext)
+bool Ftest_windows_device_info::CreateHandle(FDeviceContext* DeviceContext)
 {
 	std::string Source = DeviceContext->Path;
 	std::wstring MyStdString = std::filesystem::path(Source).wstring();
@@ -180,7 +180,7 @@ bool FWindowsDeviceInfo::CreateHandle(FDeviceContext* DeviceContext)
 	return true;
 }
 
-void FWindowsDeviceInfo::InvalidateHandle(FDeviceContext* Context)
+void Ftest_windows_device_info::InvalidateHandle(FDeviceContext* Context)
 {
 	if (!Context)
 	{
@@ -201,7 +201,7 @@ void FWindowsDeviceInfo::InvalidateHandle(FDeviceContext* Context)
 	}
 }
 
-void FWindowsDeviceInfo::InvalidateHandle(HANDLE Handle)
+void Ftest_windows_device_info::InvalidateHandle(HANDLE Handle)
 {
 	if (Handle != INVALID_PLATFORM_HANDLE)
 	{
@@ -209,7 +209,7 @@ void FWindowsDeviceInfo::InvalidateHandle(HANDLE Handle)
 	}
 }
 
-EPollResult FWindowsDeviceInfo::PollTick(HANDLE Handle, unsigned char* Buffer, std::int32_t Length, DWORD& OutBytesRead)
+EPollResult Ftest_windows_device_info::PollTick(HANDLE Handle, unsigned char* Buffer, std::int32_t Length, DWORD& OutBytesRead)
 {
 	std::int32_t Err = ERROR_SUCCESS;
 	PingOnce(Handle, &Err);
@@ -223,7 +223,7 @@ EPollResult FWindowsDeviceInfo::PollTick(HANDLE Handle, unsigned char* Buffer, s
 	return EPollResult::ReadOk;
 }
 
-bool FWindowsDeviceInfo::PingOnce(HANDLE Handle, std::int32_t* OutLastError)
+bool Ftest_windows_device_info::PingOnce(HANDLE Handle, std::int32_t* OutLastError)
 {
 	FILE_STANDARD_INFO Info{};
 	if (!GetFileInformationByHandleEx(Handle, FileStandardInfo, &Info, sizeof(Info)))
@@ -241,7 +241,7 @@ bool FWindowsDeviceInfo::PingOnce(HANDLE Handle, std::int32_t* OutLastError)
 	return true;
 }
 
-void FWindowsDeviceInfo::ProcessAudioHapitc(FDeviceContext* Context)
+void Ftest_windows_device_info::ProcessAudioHapitc(FDeviceContext* Context)
 {
 	if (!Context || !Context->Handle)
 	{
@@ -269,7 +269,7 @@ void FWindowsDeviceInfo::ProcessAudioHapitc(FDeviceContext* Context)
 	}
 }
 
-void FWindowsDeviceInfo::ConfigureFeatures(FDeviceContext* Context)
+void Ftest_windows_device_info::ConfigureFeatures(FDeviceContext* Context)
 {
 	unsigned char FeatureBuffer[41] = {0};
 	std::memset(FeatureBuffer, 0, sizeof(FeatureBuffer));

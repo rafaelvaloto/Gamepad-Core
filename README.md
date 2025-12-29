@@ -86,14 +86,14 @@ Once the console application is running, use your DualSense to test the features
 2. Continuous Device Discovery (Game Loop)
    The registry periodically scans for new devices and updates their connection states.
    #include "GCore/Templates/TBasicDeviceRegistry.h"
-   #include "Platforms/Windows/WindowsHardwarePolicy.h"
+   #include "Platforms/Windows/test_windows_hardware_policy.h"
 
 Policy Setup:
 ```cpp
 // defines the communication between the operating system hardware and the gamepad core library. 
 // Using the Windows Policy (e.g,. Linux, Mac)..
 #ifdef _WIN32
-    #include "../../Examples/Platform_Windows/WindowsHardwarePolicy.h"
+    #include "../../Examples/Platform_Windows/test_windows_hardware_policy.h"
     using TestHardwarePolicy = FWindowsPlatform::FWindowsHardwarePolicy;
     using TestHardwareInfo   = FWindowsPlatform::FWindowsHardware;
 #else
@@ -103,7 +103,7 @@ Policy Setup:
     using TestHardwareInfo   = FLinuxPlatform::FLinuxHardware;
 #endif
 
-#include "../../Examples/Adapters/Tests/Test_DeviceRegistryPolicy.h"
+#include "../../Examples/Adapters/Tests/test_device_registry_policy.h"
 using TDeviceRegistry = GamepadCore::TBasicDeviceRegistry<Test_DeviceRegistryPolicy>;
 ```
 

@@ -13,21 +13,20 @@
 #include "GCore/Interfaces/IPlatformHardwareInfo.h"
 #include "GCore/Types/Structs/Context/DeviceContext.h"
 
-#include "../../Examples/Adapters/Tests/Test_DeviceRegistryPolicy.h"
-using TestDeviceRegistry = FTest_DeviceRegistryPolicy;
 
 #ifdef _WIN32
-    #include "../../Examples/Platform_Windows/WindowsHardwarePolicy.h"
-    using TestHardwarePolicy = FWindowsPlatform::FWindowsHardwarePolicy;
-    using TestHardwareInfo   = FWindowsPlatform::FWindowsHardware;
+    #include "../../Examples/Platform_Windows/test_windows_hardware_policy.h"
+    using TestHardwarePolicy = Ftest_windows_platform::Ftest_windows_hardware_policy;
+    using TestHardwareInfo   = Ftest_windows_platform::Ftest_windows_hardware;
 #else
     // Linux Fallback
-    #include "../../Examples/Platform_Linux/LinuxHardwarePolicy.h"
-    using TestHardwarePolicy = FLinuxPlatform::FLinuxHardwarePolicy;
-    using TestHardwareInfo   = FLinuxPlatform::FLinuxHardware;
+    #include "../../Examples/Platform_Linux/test_linux_hardware_policy.h"
+    using TestHardwarePolicy = Ftest_linux_platform::Ftest_linux_hardware_policy;
+    using TestHardwareInfo   = Ftest_linux_platform::Ftest_linux_hardware;
 #endif
 
-using TDeviceRegistry = GamepadCore::TBasicDeviceRegistry<TestDeviceRegistry>;
+#include "../../Examples/Adapters/Tests/test_device_registry_policy.h"
+using TestDeviceRegistry = GamepadCore::TBasicDeviceRegistry<Ftest_device_registry_policy>;
 
 // Função auxiliar para imprimir o Helper visualmente organizado
 void PrintControlsHelper()
@@ -61,7 +60,7 @@ int main()
     IPlatformHardwareInfo::SetInstance(std::move(HardwareImpl));
 
     // 2. Inicializa o Registry
-    auto Registry = std::make_unique<TDeviceRegistry>();
+    auto Registry = std::make_unique<TestDeviceRegistry>();
 
     std::cout << "[System] Waiting for controller connection via USB/BT..." << std::endl;
 

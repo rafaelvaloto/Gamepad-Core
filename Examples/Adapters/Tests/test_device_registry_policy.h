@@ -3,7 +3,7 @@
 // Description: Example implementation of DeviceRegistry Policy for Tests.
 #pragma once
 #include <stdint.h>
-struct FTest_DeviceRegistryPolicy
+struct Ftest_device_registry_policy
 {
 public:
 	using EngineIdType = std::int32_t;
@@ -30,7 +30,7 @@ public:
 
 	static void DisconnectDevice(EngineIdType GamepadId)
 	{
-		std::cout << "DisconnectDevice...Id " << GamepadId << std::endl;
+		std::cout << "DisconnectDevice... Id " << GamepadId << std::endl;
 	}
 
 };

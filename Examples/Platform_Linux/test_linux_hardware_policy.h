@@ -5,6 +5,7 @@
 #pragma once
 #include "Core/Templates/TGenericHardwareInfo.h"
 #include "Core/Types/Structs/Context/DeviceContext.h"
+#include "GCore/Templates/TGenericHardwareInfo.h"
 #include "Implementations/Platforms/Commons/CommonsDeviceInfo.h"
 
 
@@ -15,14 +16,14 @@
 // concrete Linux implementation in
 // `Source/Private/Implementations/Platforms/Commons/CommonsDeviceInfo.cpp`
 // (e.g., forward to your FCommonsDeviceInfo logic that uses SDL HID).
-namespace FLinuxPlatform
+namespace Ftest_linux_platform
 {
-	struct FLinuxHardwarePolicy;
-	using FLinuxHardware = GamepadCore::TGenericHardwareInfo<FLinuxHardwarePolicy>;
+	struct Ftest_linux_hardware_policy;
+	using FLinuxHardware = GamepadCore::TGenericHardwareInfo<Ftest_linux_hardware_policy>;
 	
-    struct FLinuxHardwarePolicy
+    struct Ftest_linux_hardware_policy
     {
-        FLinuxHardwarePolicy() = default;
+        Ftest_linux_hardware_policy() = default;
 
         void Read(FDeviceContext* Context)
         {

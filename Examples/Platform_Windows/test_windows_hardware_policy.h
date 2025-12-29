@@ -3,45 +3,45 @@
 // Description: Cross-platform library for DualSense and generic gamepad input support.
 // Targets: Windows, Linux, macOS.
 #pragma once
-#include "WindowsDeviceInfo.h"
+#include "test_windows_device_info.h"
 #include "GCore/Templates/TGenericHardwareInfo.h"
 
-namespace FWindowsPlatform
+namespace Ftest_windows_platform
 {
-	struct FWindowsHardwarePolicy;
-	using FWindowsHardware = GamepadCore::TGenericHardwareInfo<FWindowsHardwarePolicy>;
+	struct Ftest_windows_hardware_policy;
+	using Ftest_windows_hardware = GamepadCore::TGenericHardwareInfo<Ftest_windows_hardware_policy>;
 	
-	struct FWindowsHardwarePolicy
+	struct Ftest_windows_hardware_policy
 	{
 	public:
 		void Read(FDeviceContext* Context)
 		{
-			FWindowsDeviceInfo::Read(Context);
+			Ftest_windows_device_info::Read(Context);
 		}
 
 		void Write(FDeviceContext* Context)
 		{
-			FWindowsDeviceInfo::Write(Context);
+			Ftest_windows_device_info::Write(Context);
 		}
 
 		void Detect(std::vector<FDeviceContext>& Devices)
 		{
-			FWindowsDeviceInfo::Detect(Devices);
+			Ftest_windows_device_info::Detect(Devices);
 		}
 
 		bool CreateHandle(FDeviceContext* Context)
 		{
-			return FWindowsDeviceInfo::CreateHandle(Context);
+			return Ftest_windows_device_info::CreateHandle(Context);
 		}
 
 		void InvalidateHandle(FDeviceContext* Context)
 		{
-			FWindowsDeviceInfo::InvalidateHandle(Context);
+			Ftest_windows_device_info::InvalidateHandle(Context);
 		}
 
 		void ProcessAudioHaptic(FDeviceContext* Context)
 		{
-			FWindowsDeviceInfo::ProcessAudioHapitc(Context);
+			Ftest_windows_device_info::ProcessAudioHapitc(Context);
 		}
 
 		void InitializeAudioDevice (FDeviceContext* Context)

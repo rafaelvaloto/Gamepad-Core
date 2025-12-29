@@ -2,15 +2,13 @@
 // Created for: WindowsDualsense_ds5w - Plugin to support DualSense controller on Windows.
 // Planned Release Year: 2025
 
-#include "Implementations/Platforms/Commons/CommonsDeviceInfo.h"
+#include "Platform_Linux/test_linux_device_info.h"
 
 #ifdef __unix__
-#include "API/SonyGamepadProxyHelpers.h"
-#include "Implementations/Utils/GamepadSensors.h"
 #include "SDL_hidapi.h"
-#include "Core/Types/ECoreGamepad.h"
-#include "Core/Types/Structs/Config/GamepadSensors.h"
-#include "Core/Types/Structs/Context/DeviceContext.h"
+#include "GCore/Types/ECoreGamepad.h"
+#include "GCore/Types/Structs/Config/GamepadSensors.h"
+#include "GCore/Types/Structs/Context/DeviceContext.h"
 #include <cstring>
 #include <string>
 #include <unordered_set>
