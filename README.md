@@ -39,6 +39,8 @@ Unlike generic gamepad APIs (XInput, SDL, etc.), Gamepad-Core gives you **raw, l
 - ⚡ **High-Frequency Rumble** — Precise motor control for immersive vibration
 - 🔄 **Hot-Swap Detection** — Real-time plug-and-play support
 - 🎮 **Multi-Device** — Handle up to 4 controllers simultaneously
+- 🎚️ **Factory Calibration** — Automatic calibration on connection, no setup required
+- 🎤 **Smart Mute Detection** — Automatic mute LED control, no coding required
 
 ### 🌍 True Cross-Platform Architecture
 
