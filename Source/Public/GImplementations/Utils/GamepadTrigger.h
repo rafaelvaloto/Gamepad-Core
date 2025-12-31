@@ -171,7 +171,7 @@ namespace FDualSenseTriggerComposer
 		if (Hand == EDSGamepadHand::Left || Hand == EDSGamepadHand::AnyHand)
 		{
 			Context->Output.LeftTrigger.Mode = 0x26;
-			Context->Output.LeftTrigger.Strengths.Compose[0] = 0xf8;
+			Context->Output.LeftTrigger.Strengths.Compose[0] = StartZone;
 			Context->Output.LeftTrigger.Strengths.Compose[1] =
 			    Behavior > 0 ? 0x03 : 0x00;
 			Context->Output.LeftTrigger.Strengths.Compose[2] = 0x00;

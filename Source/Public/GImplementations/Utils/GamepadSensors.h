@@ -4,6 +4,7 @@
 // Targets: Windows, Linux, macOS.
 #pragma once
 #include "GCore/Types/DSCoreTypes.h"
+#include "GCore/Types/Structs/Config/GamepadCalibration.h"
 
 namespace FGamepadSensors
 {

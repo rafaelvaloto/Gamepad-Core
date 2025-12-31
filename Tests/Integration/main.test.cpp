@@ -225,22 +225,10 @@ int main()
 			}
 			else if (InputState.bDpadRight)
 			{
-				BufferTrigger[0] = 0x26;
-				BufferTrigger[1] = 0xf0;
-				BufferTrigger[2] = 0x03;
-				BufferTrigger[3] = 0x00;
-				BufferTrigger[4] = 0x40;
-				BufferTrigger[5] = 0x92;
-				BufferTrigger[6] = 0x24;
-				BufferTrigger[7] = 0x00;
-				BufferTrigger[8] = 0x00;
-				BufferTrigger[9] = 0x09;
-
 				StatusText = "Trigger R: AutomaticGun (0x26)";
 				if (Trigger)
 				{
-					// Trigger->SetMachineGun26(EDSGamepadHand::Right);
-					Trigger->SetCustomTrigger(EDSGamepadHand::Right, BufferTrigger);
+					Trigger->SetMachineGun26(0xed, 0x03, 0x02, 0x09, EDSGamepadHand::Right);
 				}
 			}
 			// --- RESET ---
