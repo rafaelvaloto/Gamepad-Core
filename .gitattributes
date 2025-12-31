@@ -1,2 +1,5 @@
-﻿**/miniaudio.h linguist-vendored
+﻿**/miniaudio.h      linguist-vendored
 **/miniaudio_impl.cpp linguist-vendored
+**/miniaudio.cpp    linguist-vendored
+Source/Public/Libs/** linguist-vendored
+**.h linguist-language=C++
