@@ -1,271 +1,278 @@
 ﻿#ifdef BUILD_GAMEPAD_CORE_TESTS
-#include <iostream>
-#include <thread>
 #include <chrono>
-#include <memory>
 #include <cmath>
-#include <iomanip>
 #include <format>
+#include <iomanip>
+#include <iostream>
+#include <memory>
+#include <thread>
 
 // Headers do Core
-#include <functional>
-
-#include "GCore/Templates/TBasicDeviceRegistry.h"
-#include "GCore/Interfaces/IPlatformHardwareInfo.h"
-#include "GCore/Types/Structs/Context/DeviceContext.h"
 #include "../../Examples/Adapters/Tests/test_device_registry_policy.h"
+#include "GCore/Interfaces/IPlatformHardwareInfo.h"
+#include "GCore/Templates/TBasicDeviceRegistry.h"
+#include "GCore/Types/Structs/Context/DeviceContext.h"
+#include <functional>
 using TestDeviceRegistry = GamepadCore::TBasicDeviceRegistry<Ftest_device_registry_policy>;
 
 #if _WIN32
-    #include "../../Examples/Platform_Windows/test_windows_hardware_policy.h"
-    using TestHardwarePolicy = Ftest_windows_platform::Ftest_windows_hardware_policy;
-    using TestHardwareInfo   = Ftest_windows_platform::Ftest_windows_hardware;
+#include "../../Examples/Platform_Windows/test_windows_hardware_policy.h"
+using TestHardwarePolicy = Ftest_windows_platform::Ftest_windows_hardware_policy;
+using TestHardwareInfo = Ftest_windows_platform::Ftest_windows_hardware;
 #elif __unix__
-    // Linux Fallback
-    #include "../../Examples/Platform_Linux/test_linux_hardware_policy.h"
-    using TestHardwarePolicy = Ftest_linux_platform::Ftest_linux_hardware_policy;
-    using TestHardwareInfo   = Ftest_linux_platform::Ftest_linux_hardware;
+// Linux Fallback
+#include "../../Examples/Platform_Linux/test_linux_hardware_policy.h"
+using TestHardwarePolicy = Ftest_linux_platform::Ftest_linux_hardware_policy;
+using TestHardwareInfo = Ftest_linux_platform::Ftest_linux_hardware;
 #endif
-
-
 
 // Função auxiliar para imprimir o Helper visualmente organizado
 void PrintControlsHelper()
 {
-    std::cout << "\n=======================================================" << std::endl;
-    std::cout << "           DUALSENSE INTEGRATION TEST                  " << std::endl;
-    std::cout << "=======================================================" << std::endl;
-    std::cout << " [ FACE BUTTONS ]" << std::endl;
-    std::cout << "   (X) Cross    : Heavy Rumble + RED Light" << std::endl;
-    std::cout << "   (O) Circle   : Soft Rumble  + BLUE Light" << std::endl;
-    std::cout << "   [ ] Square   : Trigger Effect: GAMECUBE (R2)" << std::endl;
-    std::cout << "   /_\\ Triangle : Stop All" << std::endl;
-    std::cout << "-------------------------------------------------------" << std::endl;
-    std::cout << " [ D-PADS & SHOULDERS ]" << std::endl;
-    std::cout << "   [L1]    : Trigger Effect: Gallop (L2)" << std::endl;
-    std::cout << "   [R1]    : Trigger Effect: Machine (R2)" << std::endl;
-    std::cout << "   [UP]    : Trigger Effect: Feedback (Rigid)" << std::endl;
-    std::cout << "   [DOWN]  : Trigger Effect: Bow (Tension)" << std::endl;
-    std::cout << "   [LEFT]  : Trigger Effect: Weapon (Semi)" << std::endl;
-    std::cout << "   [RIGHT] : Trigger Effect: Automatic Gun (Buzz)" << std::endl;
-    std::cout << "=======================================================" << std::endl;
-    std::cout << " Waiting for input..." << std::endl << std::endl;
+	std::cout << "\n=======================================================" << std::endl;
+	std::cout << "           DUALSENSE INTEGRATION TEST                  " << std::endl;
+	std::cout << "=======================================================" << std::endl;
+	std::cout << " [ FACE BUTTONS ]" << std::endl;
+	std::cout << "   (X) Cross    : Heavy Rumble + RED Light" << std::endl;
+	std::cout << "   (O) Circle   : Soft Rumble  + BLUE Light" << std::endl;
+	std::cout << "   [ ] Square   : Trigger Effect: GAMECUBE (R2)" << std::endl;
+	std::cout << "   /_\\ Triangle : Stop All" << std::endl;
+	std::cout << "-------------------------------------------------------" << std::endl;
+	std::cout << " [ D-PADS & SHOULDERS ]" << std::endl;
+	std::cout << "   [L1]    : Trigger Effect: Gallop (L2)" << std::endl;
+	std::cout << "   [R1]    : Trigger Effect: Machine (R2)" << std::endl;
+	std::cout << "   [UP]    : Trigger Effect: Feedback (Rigid)" << std::endl;
+	std::cout << "   [DOWN]  : Trigger Effect: Bow (Tension)" << std::endl;
+	std::cout << "   [LEFT]  : Trigger Effect: Weapon (Semi)" << std::endl;
+	std::cout << "   [RIGHT] : Trigger Effect: Automatic Gun (Buzz)" << std::endl;
+	std::cout << "=======================================================" << std::endl;
+	std::cout << " Waiting for input..." << std::endl
+	          << std::endl;
 }
 
 int main()
 {
-    std::cout << "[System] Initializing Hardware Layer..." << std::endl;
+	std::cout << "[System] Initializing Hardware Layer..." << std::endl;
 
-    // 1. Inicializa o Hardware
-    auto HardwareImpl = std::make_unique<TestHardwareInfo>();
-    IPlatformHardwareInfo::SetInstance(std::move(HardwareImpl));
+	// 1. Inicializa o Hardware
+	auto HardwareImpl = std::make_unique<TestHardwareInfo>();
+	IPlatformHardwareInfo::SetInstance(std::move(HardwareImpl));
 
-    // 2. Inicializa o Registry
-    auto Registry = std::make_unique<TestDeviceRegistry>();
+	// 2. Inicializa o Registry
+	auto Registry = std::make_unique<TestDeviceRegistry>();
 
-    std::cout << "[System] Waiting for controller connection via USB/BT..." << std::endl;
+	std::cout << "[System] Waiting for controller connection via USB/BT..." << std::endl;
 
-    bool bWasDebugAnalog = false;
-    bool bWasConnected = false;
-    const int32_t TargetDeviceId = 0;
+	bool bWasDebugAnalog = false;
+	bool bWasConnected = false;
+	const int32_t TargetDeviceId = 0;
 
-    std::vector<uint8_t> BufferTrigger;
-    BufferTrigger.resize(10);
+	std::vector<uint8_t> BufferTrigger;
+	BufferTrigger.resize(10);
 
-    while (true)
-    {
-        // frame ~60 FPS
-        std::this_thread::sleep_for(std::chrono::milliseconds(16));
-        float DeltaTime = 0.016f;
+	while (true)
+	{
+		// frame ~60 FPS
+		std::this_thread::sleep_for(std::chrono::milliseconds(16));
+		float DeltaTime = 0.016f;
 
-        Registry->PlugAndPlay(DeltaTime);
+		Registry->PlugAndPlay(DeltaTime);
 
-        ISonyGamepad* Gamepad = Registry->GetLibrary(TargetDeviceId);
+		ISonyGamepad* Gamepad = Registry->GetLibrary(TargetDeviceId);
 
-        if (Gamepad && Gamepad->IsConnected())
-        {
-            // Evento: Conectou agora
-            if (!bWasConnected)
-            {
-                bWasConnected = true;
-                std::cout << ">>> CONTROLLER CONNECTED! <<<" << std::endl;
+		if (Gamepad && Gamepad->IsConnected())
+		{
+			// Evento: Conectou agora
+			if (!bWasConnected)
+			{
+				bWasConnected = true;
+				std::cout << ">>> CONTROLLER CONNECTED! <<<" << std::endl;
 
-                Gamepad->SetLightbar({0, 255, 0});
-                Gamepad->SetPlayerLed(EDSPlayer::One, 255);
-                PrintControlsHelper();
-            }
+				Gamepad->SetLightbar({0, 255, 0});
+				Gamepad->SetPlayerLed(EDSPlayer::One, 255);
+				PrintControlsHelper();
+			}
 
-            Gamepad->UpdateInput(DeltaTime);
-            FDeviceContext* Context = Gamepad->GetMutableDeviceContext();
-            FInputContext InputState = Context->GetInputState();
+			Gamepad->UpdateInput(DeltaTime);
+			FDeviceContext* Context = Gamepad->GetMutableDeviceContext();
+			FInputContext InputState = Context->GetInputState();
 
-            auto Trigger = Gamepad->GetIGamepadTrigger();
+			auto Trigger = Gamepad->GetIGamepadTrigger();
 
-            std::string StatusText;
+			std::string StatusText;
 
-            // --- Lógica de Botões de Face ---
-            if (InputState.bCross)
-            {
-                StatusText = "Cross";
-                Gamepad->SetVibration(255, 255);
-                Gamepad->SetLightbar({255, 0, 0}); // Vermelho
-            }
-            else if (InputState.bCircle)
-            {
-                StatusText = "Circle";
-                Gamepad->SetVibration(64, 64);
-                Gamepad->SetLightbar({0, 0, 255}); // Azul
-            }
-            // --- Lógica de Gatilhos Adaptativos (R2) ---
-            else if (InputState.bSquare)
-            {
-                StatusText = "Trigger R: GameCube (0x02)";
-                if (Trigger) {
-                    Trigger->SetGameCube(EDSGamepadHand::Right);
-                }
-            }
-            // --- D-PAD LOGIC ---
-            else if (InputState.bDpadUp)
-            {
-                BufferTrigger[0] = 0x21;
-                BufferTrigger[1] = 0xfe;
-                BufferTrigger[2] = 0x03;
-                BufferTrigger[3] = 0xf8;
-                BufferTrigger[4] = 0xff;
-                BufferTrigger[5] = 0xff;
-                BufferTrigger[6] = 0x3f;
-                BufferTrigger[7] = 0x00;
-                BufferTrigger[8] = 0x00;
-                BufferTrigger[9] = 0x00;
+			// --- Lógica de Botões de Face ---
+			if (InputState.bCross)
+			{
+				StatusText = "Cross";
+				Gamepad->SetVibration(255, 255);
+				Gamepad->SetLightbar({255, 0, 0}); // Vermelho
+			}
+			else if (InputState.bCircle)
+			{
+				StatusText = "Circle";
+				Gamepad->SetVibration(64, 64);
+				Gamepad->SetLightbar({0, 0, 255}); // Azul
+			}
+			// --- Lógica de Gatilhos Adaptativos (R2) ---
+			else if (InputState.bSquare)
+			{
+				StatusText = "Trigger R: GameCube (0x02)";
+				if (Trigger)
+				{
+					Trigger->SetGameCube(EDSGamepadHand::Right);
+				}
+			}
+			// --- D-PAD LOGIC ---
+			else if (InputState.bDpadUp)
+			{
+				BufferTrigger[0] = 0x21;
+				BufferTrigger[1] = 0xfe;
+				BufferTrigger[2] = 0x03;
+				BufferTrigger[3] = 0xf8;
+				BufferTrigger[4] = 0xff;
+				BufferTrigger[5] = 0xff;
+				BufferTrigger[6] = 0x3f;
+				BufferTrigger[7] = 0x00;
+				BufferTrigger[8] = 0x00;
+				BufferTrigger[9] = 0x00;
 
-                StatusText = "Trigger L: feedack (0x21)";
-                if (Trigger) {
-                    Trigger->SetCustomTrigger(EDSGamepadHand::Left, BufferTrigger);
-                }
-            }
-            else if (InputState.bDpadDown)
-            {
-                BufferTrigger[0] = 0x22;
-                BufferTrigger[1] = 0x02;
-                BufferTrigger[2] = 0x01;
-                BufferTrigger[3] = 0x3f;
-                BufferTrigger[4] = 0x00;
-                BufferTrigger[5] = 0x00;
-                BufferTrigger[6] = 0x00;
-                BufferTrigger[7] = 0x00;
-                BufferTrigger[8] = 0x00;
-                BufferTrigger[9] = 0x00;
+				StatusText = "Trigger L: feedack (0x21)";
+				if (Trigger)
+				{
+					Trigger->SetCustomTrigger(EDSGamepadHand::Left, BufferTrigger);
+				}
+			}
+			else if (InputState.bDpadDown)
+			{
+				BufferTrigger[0] = 0x22;
+				BufferTrigger[1] = 0x02;
+				BufferTrigger[2] = 0x01;
+				BufferTrigger[3] = 0x3f;
+				BufferTrigger[4] = 0x00;
+				BufferTrigger[5] = 0x00;
+				BufferTrigger[6] = 0x00;
+				BufferTrigger[7] = 0x00;
+				BufferTrigger[8] = 0x00;
+				BufferTrigger[9] = 0x00;
 
-                StatusText = "Trigger R: Bow (0x22)";
-                if (Trigger) {
-                    // Trigger->SetBow22();
-                    Trigger->SetCustomTrigger(EDSGamepadHand::Right, BufferTrigger);
-                }
-            }
-            else if (InputState.bLeftShoulder) {
-                BufferTrigger[0] = 0x23;
-                BufferTrigger[1] = 0x20;
-                BufferTrigger[2] = 0x02;
-                BufferTrigger[3] = 0x0f;
-                BufferTrigger[4] = 0x02;
-                BufferTrigger[5] = 0x00;
-                BufferTrigger[6] = 0x00;
-                BufferTrigger[7] = 0x00;
-                BufferTrigger[8] = 0x00;
-                BufferTrigger[9] = 0x00;
+				StatusText = "Trigger R: Bow (0x22)";
+				if (Trigger)
+				{
+					// Trigger->SetBow22();
+					Trigger->SetCustomTrigger(EDSGamepadHand::Right, BufferTrigger);
+				}
+			}
+			else if (InputState.bLeftShoulder)
+			{
+				BufferTrigger[0] = 0x23;
+				BufferTrigger[1] = 0x20;
+				BufferTrigger[2] = 0x02;
+				BufferTrigger[3] = 0x0f;
+				BufferTrigger[4] = 0x02;
+				BufferTrigger[5] = 0x00;
+				BufferTrigger[6] = 0x00;
+				BufferTrigger[7] = 0x00;
+				BufferTrigger[8] = 0x00;
+				BufferTrigger[9] = 0x00;
 
-                StatusText = "Trigger L: Gallop (0x23)";
-                if (Trigger) {
-                    // Trigger->SetGalloping23();
-                    Trigger->SetCustomTrigger(EDSGamepadHand::Left, BufferTrigger);
-                }
-            }
-            else if (InputState.bRightShoulder) {
-                BufferTrigger[0] = 0x27;
-                BufferTrigger[1] = 0x02;
-                BufferTrigger[2] = 0x02;
-                BufferTrigger[3] = 0x3a;
-                BufferTrigger[4] = 0x0a;
-                BufferTrigger[5] = 0x05;
-                BufferTrigger[6] = 0x00;
-                BufferTrigger[7] = 0x00;
-                BufferTrigger[8] = 0x00;
-                BufferTrigger[9] = 0x00;
+				StatusText = "Trigger L: Gallop (0x23)";
+				if (Trigger)
+				{
+					// Trigger->SetGalloping23();
+					Trigger->SetCustomTrigger(EDSGamepadHand::Left, BufferTrigger);
+				}
+			}
+			else if (InputState.bRightShoulder)
+			{
+				BufferTrigger[0] = 0x27;
+				BufferTrigger[1] = 0x02;
+				BufferTrigger[2] = 0x02;
+				BufferTrigger[3] = 0x3a;
+				BufferTrigger[4] = 0x0a;
+				BufferTrigger[5] = 0x05;
+				BufferTrigger[6] = 0x00;
+				BufferTrigger[7] = 0x00;
+				BufferTrigger[8] = 0x00;
+				BufferTrigger[9] = 0x00;
 
-                StatusText = "Trigger R: Machine (0x27)";
-                if (Trigger) {
-                    // Trigger->SetMachine27();
-                    Trigger->SetCustomTrigger(EDSGamepadHand::Right, BufferTrigger);
-                }
-            }
-            else if (InputState.bDpadLeft)
-            {
-                BufferTrigger[0] = 0x25;
-                BufferTrigger[1] = 0x08;
-                BufferTrigger[2] = 0x01;
-                BufferTrigger[3] = 0x07;
-                BufferTrigger[4] = 0x00;
-                BufferTrigger[5] = 0x00;
-                BufferTrigger[6] = 0x00;
-                BufferTrigger[7] = 0x00;
-                BufferTrigger[8] = 0x00;
-                BufferTrigger[9] = 0x00;
+				StatusText = "Trigger R: Machine (0x27)";
+				if (Trigger)
+				{
+					// Trigger->SetMachine27();
+					Trigger->SetCustomTrigger(EDSGamepadHand::Right, BufferTrigger);
+				}
+			}
+			else if (InputState.bDpadLeft)
+			{
+				BufferTrigger[0] = 0x25;
+				BufferTrigger[1] = 0x08;
+				BufferTrigger[2] = 0x01;
+				BufferTrigger[3] = 0x07;
+				BufferTrigger[4] = 0x00;
+				BufferTrigger[5] = 0x00;
+				BufferTrigger[6] = 0x00;
+				BufferTrigger[7] = 0x00;
+				BufferTrigger[8] = 0x00;
+				BufferTrigger[9] = 0x00;
 
-                StatusText = "Trigger R: Weapon (0x25)";
-                if (Trigger) {
-                    // Trigger->SetWeapon25();
-                    Trigger->SetCustomTrigger(EDSGamepadHand::Right, BufferTrigger);
-                }
-            }
-            else if (InputState.bDpadRight)
-            {
-                BufferTrigger[0] = 0x26;
-                BufferTrigger[1] = 0xf0;
-                BufferTrigger[2] = 0x03;
-                BufferTrigger[3] = 0x00;
-                BufferTrigger[4] = 0x40;
-                BufferTrigger[5] = 0x92;
-                BufferTrigger[6] = 0x24;
-                BufferTrigger[7] = 0x00;
-                BufferTrigger[8] = 0x00;
-                BufferTrigger[9] = 0x09;
+				StatusText = "Trigger R: Weapon (0x25)";
+				if (Trigger)
+				{
+					// Trigger->SetWeapon25();
+					Trigger->SetCustomTrigger(EDSGamepadHand::Right, BufferTrigger);
+				}
+			}
+			else if (InputState.bDpadRight)
+			{
+				BufferTrigger[0] = 0x26;
+				BufferTrigger[1] = 0xf0;
+				BufferTrigger[2] = 0x03;
+				BufferTrigger[3] = 0x00;
+				BufferTrigger[4] = 0x40;
+				BufferTrigger[5] = 0x92;
+				BufferTrigger[6] = 0x24;
+				BufferTrigger[7] = 0x00;
+				BufferTrigger[8] = 0x00;
+				BufferTrigger[9] = 0x09;
 
-                StatusText = "Trigger R: AutomaticGun (0x26)";
-                if (Trigger) {
-                    // Trigger->SetMachineGun26(EDSGamepadHand::Right);
-                    Trigger->SetCustomTrigger(EDSGamepadHand::Right, BufferTrigger);
-                }
-            }
-            // --- RESET ---
-            else if (InputState.bTriangle)
-            {
-                StatusText = "Triangle";
-                bWasDebugAnalog = !bWasDebugAnalog;
+				StatusText = "Trigger R: AutomaticGun (0x26)";
+				if (Trigger)
+				{
+					// Trigger->SetMachineGun26(EDSGamepadHand::Right);
+					Trigger->SetCustomTrigger(EDSGamepadHand::Right, BufferTrigger);
+				}
+			}
+			// --- RESET ---
+			else if (InputState.bTriangle)
+			{
+				StatusText = "Triangle";
+				bWasDebugAnalog = !bWasDebugAnalog;
 
-                Gamepad->SetVibration(0, 0);
-                Gamepad->SetLightbar({0, 255, 0}); // Volta para Verde
+				Gamepad->SetVibration(0, 0);
+				Gamepad->SetLightbar({0, 255, 0}); // Volta para Verde
 
-                Trigger->StopTrigger(EDSGamepadHand::Left);
-                Trigger->StopTrigger(EDSGamepadHand::Right);
-            }
-            else
-            {
-                Gamepad->SetVibration(0, 0);
-            }
+				Trigger->StopTrigger(EDSGamepadHand::Left);
+				Trigger->StopTrigger(EDSGamepadHand::Right);
+			}
+			else
+			{
+				Gamepad->SetVibration(0, 0);
+			}
 
-            printf("\r[%s]", StatusText.c_str());
-            fflush(stdout);
-        }
-        else
-        {
-            if (bWasConnected)
-            {
-                std::cout << "\n\n<<< CONTROLLER DISCONNECTED >>>" << std::endl;
-                std::cout << "[System] Waiting for reconnection..." << std::endl;
-                bWasConnected = false;
-            }
-        }
-    }
-    return 0;
+			printf("\r[%s]", StatusText.c_str());
+			fflush(stdout);
+		}
+		else
+		{
+			if (bWasConnected)
+			{
+				std::cout << "\n\n<<< CONTROLLER DISCONNECTED >>>" << std::endl;
+				std::cout << "[System] Waiting for reconnection..." << std::endl;
+				bWasConnected = false;
+			}
+		}
+	}
+	return 0;
 }
 #endif

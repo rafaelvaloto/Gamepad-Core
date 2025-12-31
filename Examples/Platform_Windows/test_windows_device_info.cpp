@@ -5,19 +5,19 @@
 #include "test_windows_device_info.h"
 #ifdef BUILD_GAMEPAD_CORE_TESTS
 
-extern "C" {
+extern "C"
+{
 #include <hidsdi.h>
 }
 
-#include <vector>
 #include "GCore/Types/DSCoreTypes.h"
 #include "GCore/Types/Structs/Config/GamepadCalibration.h"
 #include "GCore/Types/Structs/Context/DeviceContext.h"
 #include "GImplementations/Utils/GamepadSensors.h"
 #include <filesystem>
-#include <setupapi.h>
 #include <initguid.h>
-
+#include <setupapi.h>
+#include <vector>
 
 void Ftest_windows_device_info::Detect(std::vector<FDeviceContext>& Devices)
 {

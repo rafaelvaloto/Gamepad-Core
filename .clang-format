@@ -45,7 +45,7 @@ ContinuationIndentWidth:                        4
 IndentCaseLabels:                               true
 IncludeBlocks:                                  Merge
 IncludeCategories:
-  - Regex:    '.*\.generated\.h'
+  - Regex:    '*.h'
     Priority: 2
-  - Regex:    '.*'
+  - Regex:    '*.cpp'
     Priority: 1

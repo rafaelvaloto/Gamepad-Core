@@ -4,16 +4,16 @@
 // Targets: Windows, Linux, macOS.
 #pragma once
 #ifdef BUILD_GAMEPAD_CORE_TESTS
-#include "test_windows_device_info.h"
 #include "GCore/Templates/TGenericHardwareInfo.h"
 #include "GCore/Types/Structs/Context/DeviceContext.h"
+#include "test_windows_device_info.h"
 #include <string>
 
 namespace Ftest_windows_platform
 {
 	struct Ftest_windows_hardware_policy;
 	using Ftest_windows_hardware = GamepadCore::TGenericHardwareInfo<Ftest_windows_hardware_policy>;
-	
+
 	struct Ftest_windows_hardware_policy
 	{
 	public:
@@ -59,7 +59,9 @@ namespace Ftest_windows_platform
 		void InitializeAudioDevice(FDeviceContext* Context)
 		{
 			if (!Context)
+			{
 				return;
+			}
 
 			// Initialize miniaudio context for device enumeration
 			ma_context maContext;
@@ -114,5 +116,5 @@ namespace Ftest_windows_platform
 			ma_context_uninit(&maContext);
 		}
 	};
-}
+} // namespace Ftest_windows_platform
 #endif

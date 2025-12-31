@@ -4,12 +4,10 @@
 #pragma once
 #ifdef BUILD_GAMEPAD_CORE_TESTS
 
-
 #ifdef _WIN32
-#include <Windows.h>
-
 #include "GCore/Types/DSCoreTypes.h"
 #include "GCore/Types/Structs/Context/DeviceContext.h"
+#include <Windows.h>
 
 /**
  * @brief Enumerates the possible outcomes of a polling operation in HID device communication.

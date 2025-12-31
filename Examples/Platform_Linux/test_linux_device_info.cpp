@@ -4,10 +4,10 @@
 #include "test_linux_device_info.h"
 #ifdef BUILD_GAMEPAD_CORE_TESTS
 #ifdef __unix__
-#include "SDL_hidapi.h"
 #include "GCore/Types/ECoreGamepad.h"
 #include "GCore/Types/Structs/Config/GamepadSensors.h"
 #include "GCore/Types/Structs/Context/DeviceContext.h"
+#include "SDL_hidapi.h"
 #include <cstring>
 #include <string>
 #include <unordered_set>

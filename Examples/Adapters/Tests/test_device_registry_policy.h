@@ -9,7 +9,8 @@ struct Ftest_device_registry_policy
 public:
 	using EngineIdType = std::int32_t;
 
-	struct Hasher {
+	struct Hasher
+	{
 		std::size_t operator()(const EngineIdType& Id) const
 		{
 			return Id;
@@ -23,7 +24,6 @@ public:
 		return deviceId++;
 	}
 
-
 	void DispatchNewGamepad(EngineIdType GamepadId)
 	{
 		std::cout << "DispatchNewGamepad... Id " << GamepadId << std::endl;
@@ -33,6 +33,5 @@ public:
 	{
 		std::cout << "DisconnectDevice... Id " << GamepadId << std::endl;
 	}
-
 };
 #endif
