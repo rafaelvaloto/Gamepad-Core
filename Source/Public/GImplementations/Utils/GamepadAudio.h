@@ -5,12 +5,14 @@
 #pragma once
 
 #ifndef FALSE
-        #define FALSE 0
+#define FALSE 0
 #endif
 #ifndef TRUE
-        #define TRUE 1
+#define TRUE 1
 #endif
 #pragma warning(push)
-#pragma warning(disable: 4456)
+#pragma warning(disable : 4456)
 #include "Libs/miniaudio.h"
-namespace FGamepadAudio {}
+namespace FGamepadAudio
+{
+}
