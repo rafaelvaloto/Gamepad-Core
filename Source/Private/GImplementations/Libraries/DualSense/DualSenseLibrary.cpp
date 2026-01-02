@@ -287,7 +287,7 @@ void FDualSenseLibrary::SetMicrophoneLed(EDSMic /*Led*/)
 {
 }
 
-void FDualSenseLibrary::AudioHapticUpdate(std::vector<std::uint8_t> Data)
+void FDualSenseLibrary::AudioHapticUpdate(const std::vector<std::int8_t>& Data)
 {
 	FDeviceContext* Context = GetMutableDeviceContext();
 	if (!Context || !Context->IsConnected)
@@ -303,7 +303,7 @@ void FDualSenseLibrary::AudioHapticUpdate(std::vector<std::uint8_t> Data)
 	FGamepadOutput::SendAudioHapticAdvanced(Context);
 }
 
-void FDualSenseLibrary::AudioHapticUpdate(std::vector<std::vector<std::int16_t>> AudioData)
+void FDualSenseLibrary::AudioHapticUpdate(const std::vector<std::int16_t>& AudioData)
 {
 	FDeviceContext* Context = GetMutableDeviceContext();
 	if (!Context || !Context->AudioContext || !Context->AudioContext->IsValid())

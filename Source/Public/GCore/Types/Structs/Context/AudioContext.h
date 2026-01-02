@@ -93,7 +93,7 @@ struct FAudioDeviceContext
 		Config.sampleRate = SampleRate;
 		Config.dataCallback = DataCallback;
 		Config.pUserData = this;
-		Config.periodSizeInMilliseconds = 10;
+		// Config.periodSizeInMilliseconds = 10;
 
 		if (ma_device_init(nullptr, &Config, &Device) != MA_SUCCESS)
 		{
@@ -142,20 +142,16 @@ struct FAudioDeviceContext
 		return ma_pcm_rb_available_write(&RingBuffer);
 	}
 
-	bool WriteHapticData(const std::vector<std::vector<std::int16_t>>& AudioData)
+	bool WriteHapticData(const std::vector<std::int16_t>& InterleavedData)
 	{
-		if (!IsValid() || AudioData.empty())
+		if (!IsValid() || InterleavedData.empty())
 		{
 			return false;
 		}
+		ma_uint32 framesInput = static_cast<ma_uint32>(InterleavedData.size() / 2);
 
-		ma_uint32 framesToWrite = static_cast<ma_uint32>(AudioData.size());
 		ma_uint32 framesAvailable = ma_pcm_rb_available_write(&RingBuffer);
-
-		if (framesToWrite > framesAvailable)
-		{
-			framesToWrite = framesAvailable;
-		}
+		ma_uint32 framesToWrite = (framesInput > framesAvailable) ? framesAvailable : framesInput;
 
 		if (framesToWrite == 0)
 		{
@@ -163,40 +159,25 @@ struct FAudioDeviceContext
 		}
 
 		void* pWriteBufferPtr;
-
 		if (ma_pcm_rb_acquire_write(&RingBuffer, &framesToWrite, &pWriteBufferPtr) != MA_SUCCESS)
 		{
 			return false;
 		}
 
 		float* pOutputBuffer = static_cast<float*>(pWriteBufferPtr);
-
+		constexpr float kNormalization = 1.0f / 32768.0f;
 		for (ma_uint32 i = 0; i < framesToWrite; i++)
 		{
-			const auto& FrameData = AudioData[i];
-
-			float LeftFloat = 0.0f;
-			float RightFloat = 0.0f;
-
-			if (FrameData.size() >= 2)
-			{
-				LeftFloat = static_cast<float>(FrameData[0]) / 32768.0f;
-				RightFloat = static_cast<float>(FrameData[1]) / 32768.0f;
-			}
-			else if (FrameData.size() == 1)
-			{
-				LeftFloat = static_cast<float>(FrameData[0]) / 32768.0f;
-				RightFloat = LeftFloat; // Mono fallback
-			}
-
+			float LeftFloat = static_cast<float>(InterleavedData[i * 2]) * kNormalization;
+			float RightFloat = static_cast<float>(InterleavedData[(i * 2) + 1]) * kNormalization;
 			ma_uint32 baseIndex = i * NumChannels;
 
 			if (NumChannels >= 4)
 			{
-				pOutputBuffer[baseIndex + 0] = 0.0f;       // Speaker L (Mute)
-				pOutputBuffer[baseIndex + 1] = 0.0f;       // Speaker R (Mute)
-				pOutputBuffer[baseIndex + 2] = LeftFloat;  // Haptic L (Motor)
-				pOutputBuffer[baseIndex + 3] = RightFloat; // Haptic R (Motor)
+				pOutputBuffer[baseIndex + 0] = 0.f;
+				pOutputBuffer[baseIndex + 1] = 0.f;
+				pOutputBuffer[baseIndex + 2] = LeftFloat;
+				pOutputBuffer[baseIndex + 3] = RightFloat;
 			}
 			else
 			{

@@ -25,7 +25,7 @@ public:
 	 *                  The data is typically interpreted and processed
 	 *                  to generate corresponding haptic effects.
 	 */
-	virtual void AudioHapticUpdate(std::vector<std::uint8_t> AudioData) = 0;
+	virtual void AudioHapticUpdate(const std::vector<std::int8_t>& AudioData) = 0;
 	/**
 	 * Updates the audio haptic feedback using the provided multi-channel audio data.
 	 * This method should be implemented by subclasses to process and utilize
@@ -37,5 +37,5 @@ public:
 	 *                  to be processed to create corresponding multi-channel haptic
 	 *                  feedback effects.
 	 */
-	virtual void AudioHapticUpdate(std::vector<std::vector<std::int16_t>> AudioData) = 0;
+	virtual void AudioHapticUpdate(const std::vector<std::int16_t>& AudioData) = 0;
 };
