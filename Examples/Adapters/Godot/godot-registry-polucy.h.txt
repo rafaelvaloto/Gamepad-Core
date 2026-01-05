@@ -36,7 +36,7 @@ struct FGodotRegistryPolicy
         // DualSenseManager::get_singleton()->emit_signal("device_connected", GamepadId);
     }
 
-    // Chamado quando o controle é desconectado
+    // Called when the device is disconnected
     void DisconnectDevice(EngineIdType GamepadId)
     {
         godot::UtilityFunctions::print("[GamepadCore] DualSense Disconnected! ID: ", GamepadId);

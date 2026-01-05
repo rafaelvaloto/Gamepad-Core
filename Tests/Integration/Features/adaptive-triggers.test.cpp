@@ -7,7 +7,7 @@
 #include <memory>
 #include <thread>
 
-// Headers do Core
+// Core Headers
 #include "../../../Examples/Adapters/Tests/test_device_registry_policy.h"
 #include "GCore/Interfaces/IPlatformHardwareInfo.h"
 #include "GCore/Templates/TBasicDeviceRegistry.h"
@@ -26,7 +26,7 @@ using TestHardwarePolicy = Ftest_linux_platform::Ftest_linux_hardware_policy;
 using TestHardwareInfo = Ftest_linux_platform::Ftest_linux_hardware;
 #endif
 
-// Função auxiliar para imprimir o Helper visualmente organizado
+// Helper function to print a visually organized Controls Helper
 void PrintControlsHelper()
 {
 	std::cout << "\n=======================================================" << std::endl;
@@ -54,11 +54,11 @@ int main()
 {
 	std::cout << "[System] Initializing Hardware Layer..." << std::endl;
 
-	// 1. Inicializa o Hardware
+	// 1. Initialize Hardware
 	auto HardwareImpl = std::make_unique<TestHardwareInfo>();
 	IPlatformHardwareInfo::SetInstance(std::move(HardwareImpl));
 
-	// 2. Inicializa o Registry
+	// 2. Initialize Registry
 	auto Registry = std::make_unique<TestDeviceRegistry>();
 
 	std::cout << "[System] Waiting for controller connection via USB/BT..." << std::endl;
@@ -82,7 +82,7 @@ int main()
 
 		if (Gamepad && Gamepad->IsConnected())
 		{
-			// Evento: Conectou agora
+			// Event: Connected now
 			if (!bWasConnected)
 			{
 				bWasConnected = true;
@@ -101,20 +101,20 @@ int main()
 
 			std::string StatusText;
 
-			// --- Lógica de Botões de Face ---
+			// --- Face Buttons Logic ---
 			if (InputState.bCross)
 			{
 				StatusText = "Cross";
 				Gamepad->SetVibration(255, 255);
-				Gamepad->SetLightbar({255, 0, 0}); // Vermelho
+				Gamepad->SetLightbar({255, 0, 0}); // Red
 			}
 			else if (InputState.bCircle)
 			{
 				StatusText = "Circle";
 				Gamepad->SetVibration(64, 64);
-				Gamepad->SetLightbar({0, 0, 255}); // Azul
+				Gamepad->SetLightbar({0, 0, 255}); // Blue
 			}
-			// --- Lógica de Gatilhos Adaptativos (R2) ---
+			// --- Adaptive Triggers Logic (R2) ---
 			else if (InputState.bSquare)
 			{
 				StatusText = "Trigger R: GameCube (0x02)";
@@ -137,7 +137,7 @@ int main()
 				BufferTrigger[8] = 0x00;
 				BufferTrigger[9] = 0x00;
 
-				StatusText = "Trigger L: feedack (0x21)";
+				StatusText = "Trigger L: feedback (0x21)";
 				if (Trigger)
 				{
 					Trigger->SetCustomTrigger(EDSGamepadHand::Left, BufferTrigger);
@@ -238,7 +238,7 @@ int main()
 				bWasDebugAnalog = !bWasDebugAnalog;
 
 				Gamepad->SetVibration(0, 0);
-				Gamepad->SetLightbar({0, 255, 0}); // Volta para Verde
+				Gamepad->SetLightbar({0, 255, 0}); // Back to Green
 
 				Trigger->StopTrigger(EDSGamepadHand::Left);
 				Trigger->StopTrigger(EDSGamepadHand::Right);

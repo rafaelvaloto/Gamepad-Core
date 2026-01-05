@@ -3,10 +3,10 @@
 // Description: Cross-platform library for DualSense and generic gamepad input support.
 // Targets: Windows, Linux, macOS.
 
-// Este arquivo compila a implementação do miniaudio.
-// miniaudio é uma biblioteca header-only, então precisamos definir
-// MINIAUDIO_IMPLEMENTATION em exatamente UM arquivo .cpp para
-// gerar o código das funções.
+// This file compiles the miniaudio implementation.
+// miniaudio is a header-only library, so we need to define
+// MINIAUDIO_IMPLEMENTATION in exactly ONE .cpp file to
+// generate the function code.
 // clang-format off
 
 // --- WINDOWS (MSVC / MinGW) ---

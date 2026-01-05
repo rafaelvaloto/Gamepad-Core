@@ -2,39 +2,39 @@
 
 project(GamepadCoreIntegrationTest)
 
-# Define o padrão C++20
+# Set C++20 standard
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-# IMPORTANTE: Adiciona definições de Unicode para evitar erro de conversão de CHAR* para LPCWSTR
-# e para garantir que linke com as versões corretas das APIs do Windows (CreateFileW, etc)
+# IMPORTANT: Add Unicode definitions to avoid conversion errors from CHAR* to LPCWSTR
+# and to ensure linking with correct Windows API versions (CreateFileW, etc)
 if(WIN32)
     add_compile_definitions(UNICODE _UNICODE)
 endif()
 
-# 1. Configurar Fontes e Libs da Plataforma
+# 1. Configure Platform Sources and Libs
 set(PLATFORM_SOURCES "")
 set(PLATFORM_LIBS "")
 if(WIN32)
-    # No Windows, precisamos compilar a implementação do WindowsDeviceInfo
-    # O CMAKE_SOURCE_DIR aponta para a raiz do projeto (GamepadCore)
+    # On Windows, we need to compile the WindowsDeviceInfo implementation
+    # CMAKE_SOURCE_DIR points to project root (GamepadCore)
     list(APPEND PLATFORM_SOURCES
             "${CMAKE_SOURCE_DIR}/Examples/Platform_Windows/test_windows_device_info.cpp"
     )
 
-    # Bibliotecas do sistema obrigatórias para HID e SetupAPI
-    # + bibliotecas necessárias para miniaudio (backend WASAPI usa COM)
+    # Mandatory system libraries for HID and SetupAPI
+    # + libraries required for miniaudio (WASAPI backend uses COM)
     list(APPEND PLATFORM_LIBS
         Setupapi
         Hid
-        ole32      # COM - usado pelo miniaudio/WASAPI
+        ole32      # COM - used by miniaudio/WASAPI
         oleaut32   # OLE Automation
-        uuid       # GUIDs para interfaces COM
-        winmm      # Multimedia APIs - necessário para miniaudio
+        uuid       # GUIDs for COM interfaces
+        winmm      # Multimedia APIs - required for miniaudio
     )
 
 elseif(UNIX AND NOT APPLE)
-    # Configuração Linux (caso vá usar no futuro)
+    # Linux configuration (for future use)
     list(APPEND PLATFORM_SOURCES
             "${CMAKE_SOURCE_DIR}/Examples/Platform_Linux/test_linux_device_info.cpp"
     )
@@ -44,21 +44,21 @@ elseif(UNIX AND NOT APPLE)
 endif()
 
 
-# 2. Criar os Executáveis
-# Incluímos o adaptive-triggers.test.cpp E o arquivo de implementação da plataforma (WindowsDeviceInfo.cpp)
+# 2. Create Executables
+# Include adaptive-triggers.test.cpp AND the platform implementation file (WindowsDeviceInfo.cpp)
 add_executable(tests-adaptive-triggers
         Features/adaptive-triggers.test.cpp
         ${PLATFORM_SOURCES}
 )
 
-# Audio Haptics Integration Test - Lê arquivo .wav e envia para o controller
+# Audio Haptics Integration Test - Reads .wav file and sends to controller
 add_executable(tests-audio-haptics
         Features/audio-haptics.test.cpp
         ${PLATFORM_SOURCES}
 )
 
-# 3. Configurar Includes
-# O teste precisa achar os headers do Core e dos Examples (onde estão as Policies)
+# 3. Configure Includes
+# The test needs to find Core and Examples headers (where Policies are)
 set(COMMON_INCLUDES
         "${CMAKE_SOURCE_DIR}/Source/Public"
         "${CMAKE_SOURCE_DIR}/Source/Private"
@@ -70,11 +70,11 @@ set(COMMON_INCLUDES
 target_include_directories(tests-adaptive-triggers PRIVATE ${COMMON_INCLUDES})
 target_include_directories(tests-audio-haptics PRIVATE ${COMMON_INCLUDES})
 
-# Adiciona o caminho da raiz do projeto como uma definição de compilação
+# Add project root path as a compile definition
 target_compile_definitions(tests-audio-haptics PRIVATE GAMEPAD_CORE_PROJECT_ROOT="${CMAKE_SOURCE_DIR}")
 
-# 4. Linkagem
-# Linka com a sua lib estática (GamepadCore) e com as libs do Windows (Setupapi, Hid)
+# 4. Linking
+# Link with static lib (GamepadCore) and Windows libs (Setupapi, Hid)
 target_link_libraries(tests-adaptive-triggers
         PRIVATE
         GamepadCore
