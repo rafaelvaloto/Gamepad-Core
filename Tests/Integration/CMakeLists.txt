@@ -44,16 +44,22 @@ elseif(UNIX AND NOT APPLE)
 endif()
 
 
-# 2. Criar o Executável
+# 2. Criar os Executáveis
 # Incluímos o main.test.cpp E o arquivo de implementação da plataforma (WindowsDeviceInfo.cpp)
 add_executable(IntegrationTest
         main.test.cpp
         ${PLATFORM_SOURCES}
 )
 
+# Audio Haptics Integration Test - Lê arquivo .wav e envia para o controller
+add_executable(AudioHapticsTest
+        audio-haptics.test.cpp
+        ${PLATFORM_SOURCES}
+)
+
 # 3. Configurar Includes
 # O teste precisa achar os headers do Core e dos Examples (onde estão as Policies)
-target_include_directories(IntegrationTest PRIVATE
+set(COMMON_INCLUDES
         "${CMAKE_SOURCE_DIR}/Source/Public"
         "${CMAKE_SOURCE_DIR}/Source/Private"
         "${CMAKE_SOURCE_DIR}/Examples/Platform_Linux"
@@ -61,9 +67,18 @@ target_include_directories(IntegrationTest PRIVATE
         "${CMAKE_SOURCE_DIR}"
 )
 
+target_include_directories(IntegrationTest PRIVATE ${COMMON_INCLUDES})
+target_include_directories(AudioHapticsTest PRIVATE ${COMMON_INCLUDES})
+
 # 4. Linkagem
 # Linka com a sua lib estática (GamepadCore) e com as libs do Windows (Setupapi, Hid)
 target_link_libraries(IntegrationTest
+        PRIVATE
+        GamepadCore
+        ${PLATFORM_LIBS}
+)
+
+target_link_libraries(AudioHapticsTest
         PRIVATE
         GamepadCore
         ${PLATFORM_LIBS}

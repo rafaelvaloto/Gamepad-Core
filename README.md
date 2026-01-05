@@ -416,6 +416,37 @@ Gamepad-Core provides a **complete audio-to-haptics and audio-to-speaker pipelin
 │  • Built-in speaker                                         │
 └─────────────────────────────────────────────────────────────┘
 ```
+
+## 🎧 Audio Haptics Integration Test
+
+The `AudioHapticsTest` is an integration test that demonstrates the Audio Haptics feature. It plays a WAV file on your speakers while simultaneously sending haptic feedback to your DualSense controller.
+
+### Running the Test
+
+```bash
+# From the project root
+cd Tests/Integration
+../../cmake-build-release/Tests/Integration/AudioHapticsTest.exe "Mock/ES_Touch_SCENE.wav"
+```
+
+**Requirements:**
+- DualSense controller connected via USB or Bluetooth
+- WAV file (any format supported by miniaudio)
+
+The test supports both connection types:
+- **USB:** 48kHz haptics via audio device
+- **Bluetooth:** 3000Hz haptics via HID
+
+### 🎵 Music Credits
+
+Special thanks to **Epidemic Sound** for providing high-quality royalty-free music for testing:
+
+> **Track:** *Touch*  
+> **Artist:** *SCENE*  
+> **Source:** [Epidemic Sound](https://www.epidemicsound.com/)
+
+---
+
 ### Key Components
 
 #### 1. **GCore** — The Stable Abstraction
