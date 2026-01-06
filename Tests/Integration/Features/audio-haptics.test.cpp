@@ -486,8 +486,6 @@ int main(int argc, char* argv[])
 				// Print progress
 				float progress = (static_cast<float>(callbackData.framesPlayed) / totalFrames) * 100.0f;
 				std::cout << "\r[Playing] " << std::fixed << std::setprecision(1) << progress << "%" << std::flush;
-
-				// std::this_thread::sleep_for(std::chrono::milliseconds(16));
 			}
 
 			// Final consume to empty queues
