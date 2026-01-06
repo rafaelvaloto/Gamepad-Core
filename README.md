@@ -65,7 +65,6 @@ Raspberry Pi • Steam Deck • Custom Linux Devices
 The library uses **policy-based design** to abstract platform-specific details, making it trivial to add support for new platforms or hardware. 
 
 
-
 ## ✨ Features
 
 ### Advanced Hardware Control
@@ -140,13 +139,6 @@ The flagship Unreal Engine plugin that brings **every feature** of Gamepad-Core 
 
 > **All v2.x features are 100% powered by Gamepad-Core's API.**
 
-
-### 🧩 Godot Engine — Prototype Integration
-
-**[Godot-Dualsense](https://github.com/rafaelvaloto/Godot-Dualsense)** (GDExtension for Godot 4.x)
-
-A prototype demonstrating Gamepad-Core's portability through native GDExtension bindings.  Shows how the library can be wrapped for any scripting environment.
-
 ---
 
 ### ⚙️ O3DE (Open 3D Engine) — Gem Integration
@@ -164,18 +156,13 @@ A native O3DE Gem that brings DualSense and DualShock 4 support to the Open 3D E
 
 ---
 
-### 💡 Your Project Could Be Next
+### 🧩 Godot Engine — Prototype Integration
 
-Gamepad-Core is designed to be **drop-in ready** for any C++ codebase. Whether you're building: 
+**[Godot-Dualsense](https://github.com/rafaelvaloto/Godot-Dualsense)** (GDExtension for Godot 4.x)
 
-- A custom game engine
-- A flight simulator with haptic feedback
-- A VR application with motion controls
-- A rhythm game with precise audio haptics
-- A controller testing tool
+A prototype demonstrating Gamepad-Core's portability through native GDExtension bindings.  Shows how the library can be wrapped for any scripting environment.
 
-**You can integrate Gamepad-Core in under 100 lines of code.**
-
+---
 
 
 ## 🚀 Quick Start
@@ -216,6 +203,37 @@ Once the console application is running, use your DualSense to test the features
 | **⬇️ Down** | Trigger Effect | **Bow** (String Tension) |
 | **⬅️ Left** | Trigger Effect | **Weapon** (Semi-Automatic) |
 | **➡️ Right** | Trigger Effect | **Automatic Gun** (Buzzing) |
+
+---
+
+## 🎧 Audio Haptics Integration Test
+
+The `tests-audio-haptics` is an integration test that demonstrates the Audio Haptics feature. It plays a WAV file on your speakers while simultaneously sending haptic feedback to your DualSense controller.
+
+### Running the Test
+
+```bash
+# From the project root
+./cmake-build-release/Tests/Integration/tests-audio-haptics "Tests/Integration/Datasets/ES_Touch_SCENE.wav"
+```
+
+**Requirements:**
+- DualSense controller connected via USB or Bluetooth
+- WAV file (any format supported by miniaudio)
+
+The test supports both connection types:
+- **USB:** 48kHz haptics via audio device
+- **Bluetooth:** 3000Hz haptics via HID
+
+### 🎵 Music Credits
+
+Special thanks to **Epidemic Sound** for providing high-quality royalty-free music for testing:
+
+> **Track:** *Touch*  
+> **Artist:** *SCENE*  
+> **Source:** [Epidemic Sound](https://www.epidemicsound.com/)
+
+---
 
 ## 💻 Integration
 
@@ -417,35 +435,6 @@ Gamepad-Core provides a **complete audio-to-haptics and audio-to-speaker pipelin
 └─────────────────────────────────────────────────────────────┘
 ```
 
-## 🎧 Audio Haptics Integration Test
-
-The `tests-audio-haptics` is an integration test that demonstrates the Audio Haptics feature. It plays a WAV file on your speakers while simultaneously sending haptic feedback to your DualSense controller.
-
-### Running the Test
-
-```bash
-# From the project root
-./cmake-build-release/Tests/Integration/tests-audio-haptics "Tests/Integration/Datasets/ES_Touch_SCENE.wav"
-```
-
-**Requirements:**
-- DualSense controller connected via USB or Bluetooth
-- WAV file (any format supported by miniaudio)
-
-The test supports both connection types:
-- **USB:** 48kHz haptics via audio device
-- **Bluetooth:** 3000Hz haptics via HID
-
-### 🎵 Music Credits
-
-Special thanks to **Epidemic Sound** for providing high-quality royalty-free music for testing:
-
-> **Track:** *Touch*  
-> **Artist:** *SCENE*  
-> **Source:** [Epidemic Sound](https://www.epidemicsound.com/)
-
----
-
 ### Key Components
 
 #### 1. **GCore** — The Stable Abstraction
@@ -501,13 +490,6 @@ cmake --build build/debug --target tests-adaptive-triggers -j
 ./build/debug/Tests/Integration/tests-adaptive-triggers
 ```
 
-### Format Code (Contributors)
-
-```bash
-cmake --build build/debug --target GamepadCoreFormat -j
-```
-
----
 
 ## 🤝 Contributing
 
@@ -577,8 +559,6 @@ This software is an **independent project** and is **not affiliated** with Sony 
 ---
 
 <div align="center">
-
-### 🌟 If Gamepad-Core powers your project, consider giving it a star! 
 
 [⬆ Back to Top](#-gamepad-core)
 
