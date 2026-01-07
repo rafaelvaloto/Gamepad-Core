@@ -105,6 +105,7 @@ bool FDualSenseLibrary::Initialize(const FDeviceContext& Context)
 			IPlatformHardwareInfo::Get().Write(DSContext);
 			std::this_thread::sleep_for(std::chrono::milliseconds(50));
 		}
+		ResetLights();
 
 		// Audio haptics bluetooth
 		DSContext->BufferAudio[0] = 0x32;
