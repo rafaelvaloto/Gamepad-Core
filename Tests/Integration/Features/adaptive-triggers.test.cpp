@@ -75,26 +75,33 @@ int main()
 	std::vector<uint8_t> BufferTrigger;
 	BufferTrigger.resize(10);
 
+	bool bControllerFound = false;
+	int MaxWaitIterations = 300; // ~5 seconds at 16ms
+
 	while (true)
 	{
 #ifdef AUTOMATED_TESTS
 		auto now = std::chrono::steady_clock::now();
 		if (std::chrono::duration_cast<std::chrono::seconds>(now - startTime).count() >= 5)
 		{
-			std::cout << "\n[Test] Tempo limite atingido (5s). Encerrando..." << std::endl;
+			if (bControllerFound) {
+				std::cout << "\n[Test] Tempo limite atingido (5s). Encerrando..." << std::endl;
+			} else {
+				std::cout << "\n[Test] No controller found in automated mode. Skipping test." << std::endl;
+			}
 			break;
 		}
 #endif
 		// frame ~60 FPS
-		// std::this_thread::sleep_for(std::chrono::milliseconds(16));
+		std::this_thread::sleep_for(std::chrono::milliseconds(16));
 		float DeltaTime = 0.016f;
 
 		Registry->PlugAndPlay(DeltaTime);
-
 		ISonyGamepad* Gamepad = Registry->GetLibrary(TargetDeviceId);
 
 		if (Gamepad && Gamepad->IsConnected())
 		{
+			bControllerFound = true;
 			// Event: Connected now
 			if (!bWasConnected)
 			{
