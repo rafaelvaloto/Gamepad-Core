@@ -7,7 +7,6 @@
 #include <memory>
 #include <thread>
 
-// Core Headers
 #include "../../../Examples/Adapters/Tests/test_device_registry_policy.h"
 #include "GCore/Interfaces/IPlatformHardwareInfo.h"
 #include "GCore/Templates/TBasicDeviceRegistry.h"
@@ -20,13 +19,11 @@ using TestDeviceRegistry = GamepadCore::TBasicDeviceRegistry<Ftest_device_regist
 using TestHardwarePolicy = Ftest_windows_platform::Ftest_windows_hardware_policy;
 using TestHardwareInfo = Ftest_windows_platform::Ftest_windows_hardware;
 #elif __unix__
-// Linux Fallback
 #include "../../../Examples/Platform_Linux/test_linux_hardware_policy.h"
 using TestHardwarePolicy = Ftest_linux_platform::Ftest_linux_hardware_policy;
 using TestHardwareInfo = Ftest_linux_platform::Ftest_linux_hardware;
 #endif
 
-// Helper function to print a visually organized Controls Helper
 void PrintControlsHelper()
 {
 	std::cout << "\n=======================================================" << std::endl;
@@ -54,11 +51,9 @@ int main()
 {
 	std::cout << "[System] Initializing Hardware Layer..." << std::endl;
 
-	// 1. Initialize Hardware
 	auto HardwareImpl = std::make_unique<TestHardwareInfo>();
 	IPlatformHardwareInfo::SetInstance(std::move(HardwareImpl));
 
-	// 2. Initialize Registry
 	auto Registry = std::make_unique<TestDeviceRegistry>();
 
 	std::cout << "[System] Waiting for controller connection via USB/BT..." << std::endl;
@@ -68,7 +63,7 @@ int main()
 	const int32_t TargetDeviceId = 0;
 
 #ifdef AUTOMATED_TESTS
-	std::cout << "[Test] Modo automatizado ativo. O teste encerrará em 5s." << std::endl;
+	std::cout << "[Test] Automated mode active. The test will end in 5s." << std::endl;
 	auto startTime = std::chrono::steady_clock::now();
 #endif
 
@@ -76,7 +71,7 @@ int main()
 	BufferTrigger.resize(10);
 
 	bool bControllerFound = false;
-	int MaxWaitIterations = 300; // ~5 seconds at 16ms
+	int MaxWaitIterations = 300; 
 
 	while (true)
 	{
@@ -85,14 +80,13 @@ int main()
 		if (std::chrono::duration_cast<std::chrono::seconds>(now - startTime).count() >= 5)
 		{
 			if (bControllerFound) {
-				std::cout << "\n[Test] Tempo limite atingido (5s). Encerrando..." << std::endl;
+				std::cout << "\n[Test] Timeout reached (5s). Finishing..." << std::endl;
 			} else {
 				std::cout << "\n[Test] No controller found in automated mode. Skipping test." << std::endl;
 			}
 			break;
 		}
 #endif
-		// frame ~60 FPS
 		std::this_thread::sleep_for(std::chrono::milliseconds(16));
 		float DeltaTime = 0.016f;
 
@@ -102,7 +96,6 @@ int main()
 		if (Gamepad && Gamepad->IsConnected())
 		{
 			bControllerFound = true;
-			// Event: Connected now
 			if (!bWasConnected)
 			{
 				bWasConnected = true;
@@ -121,20 +114,18 @@ int main()
 
 			std::string StatusText;
 
-			// --- Face Buttons Logic ---
 			if (InputState->bCross)
 			{
 				StatusText = "Cross";
 				Gamepad->SetVibration(0, 200);
-				Gamepad->SetLightbar({255, 0, 0}); // Red
+				Gamepad->SetLightbar({255, 0, 0}); 
 			}
 			else if (InputState->bCircle)
 			{
 				StatusText = "Circle";
 				Gamepad->SetVibration(100, 0);
-				Gamepad->SetLightbar({0, 0, 255}); // Blue
+				Gamepad->SetLightbar({0, 0, 255}); 
 			}
-			// --- Adaptive Triggers Logic (R2) ---
 			else if (InputState->bSquare)
 			{
 				StatusText = "Trigger R: GameCube (0x02)";
@@ -143,7 +134,6 @@ int main()
 					Trigger->SetGameCube(EDSGamepadHand::Right);
 				}
 			}
-			// --- D-PAD LOGIC ---
 			else if (InputState->bDpadUp)
 			{
 				BufferTrigger[0] = 0x21;
@@ -179,7 +169,6 @@ int main()
 				StatusText = "Trigger R: Bow (0x22)";
 				if (Trigger)
 				{
-					// Trigger->SetBow22();
 					Trigger->SetCustomTrigger(EDSGamepadHand::Right, BufferTrigger);
 				}
 			}
@@ -199,7 +188,6 @@ int main()
 				StatusText = "Trigger L: Gallop (0x23)";
 				if (Trigger)
 				{
-					// Trigger->SetGalloping23();
 					Trigger->SetCustomTrigger(EDSGamepadHand::Left, BufferTrigger);
 				}
 			}
@@ -219,7 +207,6 @@ int main()
 				StatusText = "Trigger R: Machine (0x27)";
 				if (Trigger)
 				{
-					// Trigger->SetMachine27();
 					Trigger->SetCustomTrigger(EDSGamepadHand::Right, BufferTrigger);
 				}
 			}
@@ -239,7 +226,6 @@ int main()
 				StatusText = "Trigger R: Weapon (0x25)";
 				if (Trigger)
 				{
-					// Trigger->SetWeapon25();
 					Trigger->SetCustomTrigger(EDSGamepadHand::Right, BufferTrigger);
 				}
 			}
@@ -251,14 +237,13 @@ int main()
 					Trigger->SetMachineGun26(0xed, 0x03, 0x02, 0x09, EDSGamepadHand::Right);
 				}
 			}
-			// --- RESET ---
 			else if (InputState->bTriangle)
 			{
 				StatusText = "Triangle";
 				bWasDebugAnalog = !bWasDebugAnalog;
 
 				Gamepad->SetVibration(0, 0);
-				Gamepad->SetLightbar({0, 255, 0}); // Back to Green
+				Gamepad->SetLightbar({0, 255, 0}); 
 
 				Trigger->StopTrigger(EDSGamepadHand::Left);
 				Trigger->StopTrigger(EDSGamepadHand::Right);

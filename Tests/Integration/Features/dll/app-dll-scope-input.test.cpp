@@ -7,7 +7,6 @@
 #include <fstream>
 #include <string>
 
-// Replicate needed types from the library to avoid complex header inclusion in the test
 namespace DSCoreTypes {
     struct DSVector2D { float X, Y; };
     struct DSVector3D { float X, Y, Z; };
@@ -51,8 +50,6 @@ int main()
 {
     std::cout << "[Test] Iniciando Teste de Integracao da DLL do App..." << std::endl;
 
-    // No Windows, a DLL pode estar no mesmo diretorio do executavel ou em caminhos configurados
-    // Para o teste, vamos tentar carregar do diretorio relativo onde o CMake a coloca.
     const char* dllPath = "../../App/GamepadCoreApp.dll";
 
     std::cout << "[Test] Carregando DLL de: " << dllPath << std::endl;
@@ -60,7 +57,6 @@ int main()
 
     if (!hDll)
     {
-        // Se falhar o relativo, tenta o nome direto (caso esteja no PATH ou mesma pasta)
         const char* dllName = "GamepadCoreApp.dll";
         std::cout << "[Test] Tentando carregar pelo nome: " << dllName << std::endl;
         hDll = LoadLibraryA(dllName);
@@ -95,7 +91,6 @@ int main()
     std::cout << "[Test] Chamando StartGamepadService()..." << std::endl;
     StartService();
 
-    // Roda por alguns segundos para validar o funcionamento
 #ifdef AUTOMATED_TESTS
     std::cout << "[Test] Modo automatizado ativo. Serviço rodando por 5 segundos para validação..." << std::endl;
     for (int i = 0; i < 50; ++i)
@@ -118,7 +113,6 @@ int main()
     std::cout << "[Test] Chamando StopGamepadService()..." << std::endl;
     StopService();
 
-    // Pequena pausa para garantir que o Logger finalize a escrita no arquivo
     std::this_thread::sleep_for(std::chrono::milliseconds(500));
 
     std::cout << "[Test] Liberando DLL..." << std::endl;
@@ -126,13 +120,10 @@ int main()
 
     std::cout << "[Test] Teste concluido com sucesso." << std::endl;
 
-    // Verificar se o log foi criado
-    // O AppMain.cpp agora usa Logger::Initialize(".")
     std::string logPath = "GamepadService.log";
     if (std::filesystem::exists(logPath))
     {
         std::cout << "[Test] Log verificado no diretorio local: " << logPath << std::endl;
-        // Opcional: mostrar o conteúdo do log
         std::ifstream logFile(logPath);
         std::string line;
         std::cout << "--- CONTEUDO DO LOG ---" << std::endl;
@@ -143,7 +134,6 @@ int main()
     }
     else
     {
-        // Tentar o caminho antigo tambem por via das duvidas
         std::string oldLogPath = "C:\\Users\\rafae\\AppData\\Local\\SessionGame\\Saved\\Logs\\GamepadService.log";
         if (std::filesystem::exists(oldLogPath)) {
              std::cout << "[Test] Log verificado no caminho absoluto: " << oldLogPath << std::endl;

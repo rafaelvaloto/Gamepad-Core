@@ -10,11 +10,9 @@
 #include <mutex>
 #include <queue>
 
-// miniaudio for audio playback and WAV decoding
 #include "GImplementations/Utils/GamepadAudio.h"
 using namespace FGamepadAudio;
 
-// #include "Logger.h"
 #include "GCore/Interfaces/IPlatformHardwareInfo.h"
 #include "GCore/Templates/TGenericHardwareInfo.h"
 #include "GCore/Templates/TBasicDeviceRegistry.h"
@@ -34,7 +32,6 @@ using TestHardwareInfo = Ftest_windows_platform::Ftest_windows_hardware;
 using namespace GamepadCore;
 using TestDeviceRegistry = GamepadCore::TBasicDeviceRegistry<Ftest_device_registry_policy>;
 
-// Instância global da thread e controle
 std::atomic<bool> g_Running(false);
 std::atomic<bool> g_ServiceInitialized(false);
 std::thread g_ServiceThread;
@@ -48,23 +45,14 @@ const int32_t TargetDeviceId = 0;
 
 
 
-// ============================================================================
-// Audio Haptics Constants (Based on AudioHapticsListener)
-// ============================================================================
 constexpr float kLowPassAlpha = 0.99f;
 constexpr float kOneMinusAlpha = 1.0f - kLowPassAlpha;
 
 constexpr float kLowPassAlphaBt = 0.98f;
 constexpr float kOneMinusAlphaBt = 1.0f - kLowPassAlphaBt;
 
-// ============================================================================
-// Thread-safe queue for audio packets
-// ============================================================================
 
 
-// ============================================================================
-// Thread-safe queue for audio packets
-// ============================================================================
 template<typename T>
 class ThreadSafeQueue
 {
@@ -98,9 +86,6 @@ private:
 	std::mutex mMutex;
 };
 
-// ============================================================================
-// Global state for audio callback
-// ============================================================================
 struct AudioCallbackData
 {
 	ma_decoder* pDecoder = nullptr;
@@ -111,16 +96,13 @@ struct AudioCallbackData
 	std::atomic<uint64_t> framesPlayed{0};
 	bool bIsWireless = false;
 
-	// Queues for haptics (like AudioHapticsListener)
 	ThreadSafeQueue<std::vector<uint8_t>> btPacketQueue;
 	ThreadSafeQueue<std::vector<int16_t>> usbSampleQueue;
 
-	// Accumulator for Bluetooth - need 1024 frames to produce 64 resampled frames
 	std::vector<float> btAccumulator;
 	std::mutex btAccumulatorMutex;
 };
 
-// Audio callback - plays audio on speakers and queues haptics data
 void AudioDataCallback(ma_device* pDevice, void* pOutput, const void* pInput, ma_uint32 frameCount)
 {
 	auto* pData = static_cast<AudioCallbackData*>(pDevice->pUserData);
@@ -134,19 +116,15 @@ void AudioDataCallback(ma_device* pDevice, void* pOutput, const void* pInput, ma
 
 	if (pData->bIsSystemAudio)
 	{
-		// Capture from system audio (loopback)
 		if (pInput == nullptr)
 		{
 			return;
 		}
 
-		// miniaudio already provides the captured audio in pInput
 		auto pInputFloat = static_cast<const float*>(pInput);
 		std::memcpy(tempBuffer.data(), pInputFloat, frameCount * 2 * sizeof(float));
 		framesRead = frameCount;
 
-		// If we are in duplex mode or playback, we might want to copy to pOutput to hear it
-		// But usually loopback capture is enough.
 		if (pOutput)
 		{
 			std::memcpy(pOutput, pInput, frameCount * 2 * sizeof(float));
@@ -154,7 +132,6 @@ void AudioDataCallback(ma_device* pDevice, void* pOutput, const void* pInput, ma
 	}
 	else
 	{
-		// Read from decoder
 		if (!pData->pDecoder)
 		{
 			if (pOutput)
@@ -176,7 +153,6 @@ void AudioDataCallback(ma_device* pDevice, void* pOutput, const void* pInput, ma
 			return;
 		}
 
-		// Copy to output (for speakers) - audio plays at 48kHz
 		if (pOutput)
 		{
 			auto* pOutputFloat = static_cast<float*>(pOutput);
@@ -189,10 +165,8 @@ void AudioDataCallback(ma_device* pDevice, void* pOutput, const void* pInput, ma
 		}
 	}
 
-	// Process for haptics
 	if (!pData->bIsWireless)
 	{
-		// USB: Queue 16-bit stereo samples with high-pass filter
 		for (ma_uint64 i = 0; i < framesRead; ++i)
 		{
 			float inLeft = tempBuffer[i * 2];
@@ -212,27 +186,23 @@ void AudioDataCallback(ma_device* pDevice, void* pOutput, const void* pInput, ma
 	}
 	else
 	{
-		// Add current frames to accumulator with safety limit
 		{
 			std::lock_guard<std::mutex> lock(pData->btAccumulatorMutex);
 			
-			// If accumulator is too large, drop old data (more than 500ms of audio)
-			// 48000 frames/sec * 0.5 sec = 24000 frames
 			const size_t maxAccumulatorFrames = 24000 * 2; 
 			if (pData->btAccumulator.size() > maxAccumulatorFrames)
 			{
-				pData->btAccumulator.clear(); // Clear it for safety if it grows too much
+				pData->btAccumulator.clear(); 
 			}
 
 			for (ma_uint64 i = 0; i < framesRead; ++i)
 			{
-				pData->btAccumulator.push_back(tempBuffer[i * 2]);     // Left
-				pData->btAccumulator.push_back(tempBuffer[i * 2 + 1]); // Right
+				pData->btAccumulator.push_back(tempBuffer[i * 2]);     
+				pData->btAccumulator.push_back(tempBuffer[i * 2 + 1]); 
 			}
 		}
 
-		// Process when we have at least 1024 frames (2048 samples)
-		const size_t requiredSamples = 1024 * 2; // 1024 frames * 2 channels
+		const size_t requiredSamples = 1024 * 2; 
 
 		while (true)
 		{
@@ -242,19 +212,17 @@ void AudioDataCallback(ma_device* pDevice, void* pOutput, const void* pInput, ma
 				std::lock_guard<std::mutex> lock(pData->btAccumulatorMutex);
 				if (pData->btAccumulator.size() < requiredSamples)
 				{
-					break; // Not enough data yet, exit loop but continue to update framesPlayed
+					break; 
 				}
 
-				// Extract 1024 frames from accumulator
 				framesToProcess.assign(pData->btAccumulator.begin(), pData->btAccumulator.begin() + requiredSamples);
 				pData->btAccumulator.erase(pData->btAccumulator.begin(), pData->btAccumulator.begin() + requiredSamples);
 			}
 
-			// Now resample 1024 frames to 64 frames
-			const float ratio = 3000.0f / 48000.0f; // 0.0625
+			const float ratio = 3000.0f / 48000.0f; 
 			const std::int32_t numInputFrames = 1024;
 
-			std::vector<float> resampledData(128, 0.0f); // 64 frames * 2 channels
+			std::vector<float> resampledData(128, 0.0f); 
 
 			for (std::int32_t outFrame = 0; outFrame < 64; ++outFrame)
 			{
@@ -281,7 +249,6 @@ void AudioDataCallback(ma_device* pDevice, void* pOutput, const void* pInput, ma
 				resampledData[outFrame * 2 + 1] = right0 + frac * (right1 - right0);
 			}
 
-			// Apply high-pass filter to all 64 frames
 			for (std::int32_t i = 0; i < 64; ++i)
 			{
 				const std::int32_t dataIndex = i * 2;
@@ -296,7 +263,6 @@ void AudioDataCallback(ma_device* pDevice, void* pOutput, const void* pInput, ma
 				resampledData[dataIndex + 1] = inRight - pData->LowPassStateRight;
 			}
 
-			// Create Packet1: Frames 0-31 (64 bytes)
 			std::vector<std::int8_t> packet1(64, 0);
 
 			for (std::int32_t i = 0; i < 32; ++i)
@@ -313,7 +279,6 @@ void AudioDataCallback(ma_device* pDevice, void* pOutput, const void* pInput, ma
 				packet1[dataIndex + 1] = rightInt8;
 			}
 
-			// Create Packet2: Frames 32-63 (64 bytes)
 			std::vector<std::int8_t> packet2(64, 0);
 			for (std::int32_t i = 0; i < 32; ++i)
 			{
@@ -330,7 +295,6 @@ void AudioDataCallback(ma_device* pDevice, void* pOutput, const void* pInput, ma
 				packet2[packetIndex + 1] = rightInt8;
 			}
 
-			// Convert to uint8 and enqueue
 			std::vector<std::uint8_t> packet1Unsigned(packet1.begin(), packet1.end());
 			std::vector<std::uint8_t> packet2Unsigned(packet2.begin(), packet2.end());
 
@@ -342,7 +306,6 @@ void AudioDataCallback(ma_device* pDevice, void* pOutput, const void* pInput, ma
 	pData->framesPlayed += framesRead;
 }
 
-// Consume haptics queue and send to controller
 void ConsumeHapticsQueue(IGamepadAudioHaptics* AudioHaptics, AudioCallbackData& callbackData)
 {
 
@@ -376,7 +339,6 @@ void ConsumeHapticsQueue(IGamepadAudioHaptics* AudioHaptics, AudioCallbackData& 
 	}
 }
 
-// Estado global para áudio
 ma_device g_AudioDevice;
 bool g_AudioDeviceInitialized = false;
 AudioCallbackData g_AudioCallbackData;
@@ -414,7 +376,6 @@ void AudioLoop()
             IGamepadAudioHaptics* AudioHaptics = Gamepad->GetIGamepadHaptics();
             if (AudioHaptics)
             {
-                // Configurações do DualSense para Haptics
                 Gamepad->DualSenseSettings(0x10, 0x7C, 0x7C, 0x7C, 0x7C, 0xFC, 0x00, 0x00);
 
                 if (!g_AudioDeviceInitialized || g_AudioCallbackData.bIsWireless != bIsWireless || (g_AudioDeviceInitialized && ma_device_get_state(&g_AudioDevice) == ma_device_state_stopped))
@@ -424,7 +385,6 @@ void AudioLoop()
                         ma_device_uninit(&g_AudioDevice);
                         g_AudioDeviceInitialized = false;
                         
-                        // Limpa acumuladores e filas ao reiniciar
                         {
                             std::lock_guard<std::mutex> lock(g_AudioCallbackData.btAccumulatorMutex);
                             g_AudioCallbackData.btAccumulator.clear();
@@ -437,7 +397,6 @@ void AudioLoop()
 
                     std::cout << "[AppDLL] Initializing Audio Loopback for Haptics (" << (bIsWireless ? "Bluetooth" : "USB") << ")..." << std::endl;
 
-                    // Configura o contexto de áudio para USB se necessário
                     FDeviceContext* Context = Gamepad->GetMutableDeviceContext();
                     if (!bIsWireless && Context)
                     {
@@ -457,7 +416,7 @@ void AudioLoop()
                     deviceConfig.sampleRate = 48000;
                     deviceConfig.dataCallback = AudioDataCallback;
                     deviceConfig.pUserData = &g_AudioCallbackData;
-                    deviceConfig.wasapi.loopbackProcessID = 0; // Captura de todos os processos
+                    deviceConfig.wasapi.loopbackProcessID = 0; 
 
                     ma_result result = ma_device_init(nullptr, &deviceConfig, &g_AudioDevice);
                     if (result == MA_SUCCESS)
@@ -483,7 +442,6 @@ void AudioLoop()
         }
         else
         {
-            // Se o controle foi desconectado, para o áudio
             if (g_AudioDeviceInitialized)
             {
                 ma_device_uninit(&g_AudioDevice);
@@ -492,11 +450,8 @@ void AudioLoop()
             }
         }
 
-        // Sleep curto para não consumir muita CPU, mas manter baixa latência
-        // std::this_thread::sleep_for(std::chrono::milliseconds(1));
     }
 
-    // Cleanup final do loop
     if (g_AudioDeviceInitialized)
     {
         ma_device_uninit(&g_AudioDevice);
@@ -555,15 +510,12 @@ void InputLoop()
              }
         }
 
-        // Aproximadamente 60Hz para leitura de input
     }
 
     std::cout << "[AppDLL] Input Loop Stopped." << std::endl;
 }
 
-// Função auxiliar para abrir o console preto do Windows (CMD)
 void CreateConsole() {
-    // Se o console já existir, não faz nada
     if (GetConsoleWindow() != NULL) {
         return;
     }
@@ -573,7 +525,6 @@ void CreateConsole() {
         freopen_s(&fp, "CONOUT$", "w", stderr);
         freopen_s(&fp, "CONIN$", "r", stdin);
         
-        // Desativa o buffering para ver as mensagens imediatamente
         setvbuf(stdout, NULL, _IONBF, 0);
         setvbuf(stderr, NULL, _IONBF, 0);
 
@@ -581,31 +532,25 @@ void CreateConsole() {
     }
 }
 
-// Wrapper para rodar seu serviço
 void StartServiceThread() {
     if (g_ServiceInitialized.exchange(true)) return;
 
-    // 1. Cria o console para você ver os logs
     CreateConsole();
 
     std::cout << "[AppDLL] Service Thread Starting..." << std::endl;
     std::cout.flush();
 
-    // Reset last input state to avoid ghost events
     g_LastInputState = FInputContext();
 
-    // 2. Inicia o Logger
-    // Logger::Initialize(".");
     
     std::cout << "[System] Initializing Hardware Layer..." << std::endl;
     std::cout.flush();
 
-    // 3. Sua lógica de inicialização
     auto HardwareImpl = std::make_unique<TestHardwareInfo>();
     IPlatformHardwareInfo::SetInstance(std::move(HardwareImpl));
 
     g_Registry = std::make_unique<TestDeviceRegistry>();
-    g_Registry->Policy.deviceId = 0; // Initialize deviceId for the policy
+    g_Registry->Policy.deviceId = 0; 
     
     std::cout << "[System] Requesting Immediate Detection..." << std::endl;
     std::cout.flush();
@@ -629,12 +574,10 @@ void StartServiceThread() {
     std::cout << "[AppDLL] Gamepad Service Started." << std::endl;
     std::cout.flush();
     
-    // Inicia a thread de áudio
     g_AudioThread = std::thread(AudioLoop);
 
     InputLoop();
     
-    // Cleanup
     if (g_AudioThread.joinable())
     {
         g_AudioThread.join();
@@ -648,7 +591,6 @@ void StartServiceThread() {
 #endif
 
     if (g_Registry) g_Registry.reset();
-    // Logger::Shutdown();
     
     std::cout << "[AppDLL] Gamepad Service Stopped." << std::endl;
     std::cout.flush();
@@ -659,13 +601,11 @@ extern "C" {
 
     __declspec(dllexport) void StartGamepadService()
     {
-        // Se já estiver rodando ou inicializado, não faz nada
         if (g_Running || g_ServiceInitialized)
         {
             return;
         }
 
-        // Se já houver uma thread, garante que ela seja limpa antes de iniciar outra (raro)
         if (g_ServiceThread.joinable())
         {
             g_ServiceThread.detach();
@@ -693,7 +633,6 @@ extern "C" {
     			FInputContext* InState = DeviceContext->GetInputState();
                 if (!InState) return false;
                 
-                // Cópia manual campo a campo para evitar problemas de alinhamento se structs forem diferentes
     			OutState->bCross = InState->bCross;
     			OutState->bCircle = InState->bCircle;
     			OutState->bTriangle = InState->bTriangle;
@@ -740,14 +679,12 @@ BOOL APIENTRY DllMain(HMODULE hModule, DWORD ul_reason_for_call, LPVOID lpReserv
     {
     case DLL_PROCESS_ATTACH:
     	StartGamepadService();
-        // Não iniciamos a thread aqui para evitar problemas de carregamento
-        // O serviço será iniciado sob demanda via XInputGetState -> StartGamepadService
         break;
 
     case DLL_PROCESS_DETACH:
         g_Running = false;
         
-        if (lpReserved == nullptr) { // FreeLibrary chamada manualmente
+        if (lpReserved == nullptr) { 
             if (g_AudioThread.joinable()) g_AudioThread.detach();
             if (g_ServiceThread.joinable()) g_ServiceThread.detach();
         }

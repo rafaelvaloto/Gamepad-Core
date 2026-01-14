@@ -7,7 +7,6 @@
 #include <fstream>
 #include <string>
 
-// Replicate needed types from the library to avoid complex header inclusion in the test
 namespace DSCoreTypes {
     struct DSVector2D { float X, Y; };
     struct DSVector3D { float X, Y, Z; };
@@ -52,8 +51,6 @@ int main()
     std::cout << "[Test] Iniciando Teste de Escopo de Haptics via DLL..." << std::endl;
 
     bool nonInteractive = false;
-    // Check for environment variable or a flag if needed, but for now let's just use a timeout-based approach
-    // that doesn't block if stdin is redirected or empty.
     
     const char* dllPath = "../../App/GamepadCoreApp.dll";
 
@@ -98,7 +95,6 @@ int main()
 #else
     std::cout << "[Test] Pressione ENTER para encerrar o teste (ou aguarde 60s)..." << std::endl;
     
-    // Thread para esperar ENTER
     std::atomic<bool> stopRequested(false);
     std::thread inputThread([&stopRequested]() {
         std::cin.get();
@@ -106,7 +102,6 @@ int main()
     });
 #endif
 
-    // Loop com timeout
     auto startTime = std::chrono::steady_clock::now();
     
     while (true)
@@ -137,8 +132,6 @@ int main()
 
 #ifndef AUTOMATED_TESTS
     if (inputThread.joinable()) {
-        // Como std::cin.get() bloqueia, no Windows podemos usar o handle do console se quisermos forçar,
-        // mas para simplificar vamos apenas avisar.
         std::cout << "[Test] Pressione ENTER para finalizar a thread de input..." << std::endl;
         inputThread.join();
     }
