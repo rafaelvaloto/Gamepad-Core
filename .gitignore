@@ -2,8 +2,8 @@
 /cmake-build-debug
 /cmake-build-release
 /build
-/App
 /.vscode
+/Examples/Platform_Windows/ViGEmAdapter/ViGEmClient-master/*
 *.log
 *.user
 *.swp
