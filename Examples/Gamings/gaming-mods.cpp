@@ -1,4 +1,4 @@
-﻿#if defined(_WIN32) && defined(USE_VIGEM)
+﻿#if defined(_WIN32) && defined(USE_VIGEM) && !defined(DAUTOMATED_TESTS) && defined(DBUILD_GAMEPAD_CORE_TESTS)
 #include "GImplementations/Utils/GamepadAudio.h"
 #include <atomic>
 #include <iostream>
