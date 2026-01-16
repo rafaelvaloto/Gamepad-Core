@@ -1,7 +1,12 @@
-﻿#if defined(_WIN32) && defined(USE_VIGEM) && !defined(DAUTOMATED_TESTS) && defined(DBUILD_GAMEPAD_CORE_TESTS)
+﻿#if defined(_WIN32) && defined(USE_VIGEM)
 #include "ViGEmAdapter.h"
+#include "GCore/Types/Structs/Context/InputContext.h"
+#include "ViGEm/Client.h"
+#include "ViGEm/Common.h"
 #include <algorithm>
+#include <ios>
 #include <iostream>
+#include <ostream>
 
 namespace GamepadCore
 {

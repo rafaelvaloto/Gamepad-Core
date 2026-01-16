@@ -1,5 +1,4 @@
 ﻿#pragma once
-#ifdef BUILD_GAMEPAD_CORE_TESTS
 #if defined(_WIN32) && defined(USE_VIGEM)
 
 #include "GCore/Types/Structs/Context/InputContext.h"
@@ -29,4 +28,3 @@ namespace GamepadCore
 } // namespace GamepadCore
 
 #endif // _WIN32 && USE_VIGEM
-#endif // BUILD_GAMEPAD_CORE_TESTS
