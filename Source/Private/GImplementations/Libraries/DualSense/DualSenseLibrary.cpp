@@ -31,7 +31,6 @@ void FDualSenseLibrary::SetVibration(std::uint8_t LeftRumble,
 	    HidOutput->Rumbles.Right != RightRumble)
 	{
 		HidOutput->Rumbles = {LeftRumble, RightRumble};
-		UpdateOutput();
 	}
 }
 
@@ -51,7 +50,6 @@ void FDualSenseLibrary::ResetLights()
 	}
 
 	HidOutput->PlayerLed.Led = static_cast<unsigned char>(EDSPlayer::One);
-	UpdateOutput();
 }
 
 void FDualSenseLibrary::SetLightbar(DSCoreTypes::FDSColor Color)
@@ -70,7 +68,6 @@ void FDualSenseLibrary::SetLightbar(DSCoreTypes::FDSColor Color)
 		HidOutput->Lightbar.R = Color.R;
 		HidOutput->Lightbar.G = Color.G;
 		HidOutput->Lightbar.B = Color.B;
-		UpdateOutput();
 	}
 }
 
@@ -78,6 +75,7 @@ bool FDualSenseLibrary::Initialize(const FDeviceContext& Context)
 {
 	SetDeviceContexts(Context);
 	FDeviceContext* DSContext = GetMutableDeviceContext();
+	ResetLights();
 	if (DSContext->ConnectionType == EDSDeviceConnection::Bluetooth)
 	{
 		{
@@ -108,7 +106,6 @@ bool FDualSenseLibrary::Initialize(const FDeviceContext& Context)
 		}
 		DSContext->Output.Feature.VibrationMode = 0xFF;
 		DSContext->Output.Feature.FeatureMode = 0xF7;
-		ResetLights();
 
 		// Audio haptics bluetooth
 		DSContext->BufferAudio[0] = 0x32;
@@ -121,8 +118,14 @@ bool FDualSenseLibrary::Initialize(const FDeviceContext& Context)
 		DSContext->BufferAudio[7] = 0;
 		DSContext->BufferAudio[8] = 0;
 		DSContext->BufferAudio[9] = 105;
+
+		UpdateOutput();
 		return true;
 	}
+
+	constexpr std::uint8_t FeatureMode = 0x57;
+	DSContext->Output.Feature = {FeatureMode, 0xFF, 0x00, 0x00};
+	UpdateOutput();
 	return true;
 }
 
@@ -189,8 +192,7 @@ void FDualSenseLibrary::DualSenseSettings(std::uint8_t bIsMic, std::uint8_t bIsH
 		Context->Output.Audio.Mode = 0x31;
 	}
 
-	std::uint8_t FeatureMode = 0x55;
-	Context->Output.Feature = {FeatureMode, RumbleMode, RumbleReduce, TriggerReduce};
+	Context->Output.Feature = {Context->Output.Feature.FeatureMode, RumbleMode, RumbleReduce, TriggerReduce};
 }
 
 void FDualSenseLibrary::UpdateOutput()
@@ -209,7 +211,6 @@ void FDualSenseLibrary::SetResistance(std::uint8_t StartZones,
 {
 	FDeviceContext* Context = GetMutableDeviceContext();
 	Resistance(Context, StartZones, Strength, Hand);
-	UpdateOutput();
 }
 
 void FDualSenseLibrary::SetGalloping23(std::uint8_t StartPosition,
@@ -222,21 +223,18 @@ void FDualSenseLibrary::SetGalloping23(std::uint8_t StartPosition,
 	FDeviceContext* Context = GetMutableDeviceContext();
 	Galloping23(Context, StartPosition, EndPosition, FirstFoot, SecondFoot,
 	            Frequency, Hand);
-	UpdateOutput();
 }
 
 void FDualSenseLibrary::StopTrigger(const EDSGamepadHand& Hand)
 {
 	FDeviceContext* Context = GetMutableDeviceContext();
 	Off(Context, Hand);
-	UpdateOutput();
 }
 
 void FDualSenseLibrary::SetGameCube(const EDSGamepadHand& Hand)
 {
 	FDeviceContext* Context = GetMutableDeviceContext();
 	GameCube(Context, Hand);
-	UpdateOutput();
 }
 
 void FDualSenseLibrary::SetBow22(std::uint8_t StartZone, std::uint8_t SnapBack,
@@ -245,7 +243,6 @@ void FDualSenseLibrary::SetBow22(std::uint8_t StartZone, std::uint8_t SnapBack,
 	FDeviceContext* Context = GetMutableDeviceContext();
 	Context->bOverrideTriggerBytes = false;
 	Bow22(Context, StartZone, SnapBack, Hand);
-	UpdateOutput();
 }
 
 void FDualSenseLibrary::SetWeapon25(std::uint8_t StartZone,
@@ -255,7 +252,6 @@ void FDualSenseLibrary::SetWeapon25(std::uint8_t StartZone,
 {
 	FDeviceContext* Context = GetMutableDeviceContext();
 	Weapon25(Context, StartZone, Amplitude, Behavior, Trigger, Hand);
-	UpdateOutput();
 }
 
 void FDualSenseLibrary::SetMachineGun26(std::uint8_t StartZone,
@@ -266,7 +262,6 @@ void FDualSenseLibrary::SetMachineGun26(std::uint8_t StartZone,
 {
 	FDeviceContext* Context = GetMutableDeviceContext();
 	MachineGun26(Context, StartZone, Behavior, Amplitude, Frequency, Hand);
-	UpdateOutput();
 }
 
 void FDualSenseLibrary::SetMachine27(std::uint8_t StartZone,
@@ -279,7 +274,6 @@ void FDualSenseLibrary::SetMachine27(std::uint8_t StartZone,
 	FDeviceContext* Context = GetMutableDeviceContext();
 	Machine27(Context, StartZone, BehaviorFlag, Force, Amplitude, Period,
 	          Frequency, Hand);
-	UpdateOutput();
 }
 
 void FDualSenseLibrary::SetCustomTrigger(
@@ -287,8 +281,6 @@ void FDualSenseLibrary::SetCustomTrigger(
 {
 	FDeviceContext* Context = GetMutableDeviceContext();
 	CustomTrigger(Context, Hand, HexBytes);
-
-	UpdateOutput();
 }
 
 void FDualSenseLibrary::SetPlayerLed(EDSPlayer Led, std::uint8_t Brightness)
@@ -299,7 +291,6 @@ void FDualSenseLibrary::SetPlayerLed(EDSPlayer Led, std::uint8_t Brightness)
 	{
 		HidOutput->PlayerLed.Led = static_cast<unsigned char>(Led);
 		HidOutput->PlayerLed.Brightness = static_cast<unsigned char>(Brightness);
-		UpdateOutput();
 	}
 }
 

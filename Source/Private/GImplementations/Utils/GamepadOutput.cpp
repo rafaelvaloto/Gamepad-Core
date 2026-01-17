@@ -64,11 +64,11 @@ void FGamepadOutput::OutputDualSense(FDeviceContext* DeviceContext)
 		Padding = 2;
 		MutableBuffer[0] = 0x31;
 		MutableBuffer[1] = 0x02;
-		HidOut->Feature.FeatureMode = 0xF7;
+		MutableBuffer[40] ^= 0x01;
 	}
 	else
 	{
-		HidOut->Feature.FeatureMode = 0x57;
+		MutableBuffer[40] = 0x07;
 	}
 
 	{
@@ -86,7 +86,6 @@ void FGamepadOutput::OutputDualSense(FDeviceContext* DeviceContext)
 		Output[9] = HidOut->Audio.MicStatus == 1 ? 0x10 : 0x00;
 		Output[8] = HidOut->Audio.MicStatus == 1 ? 0x01 : 0x00;
 		Output[36] = (HidOut->Feature.TriggerSoftnessLevel << 4) | (HidOut->Feature.SoftRumbleReduce & 0x0F);
-		Output[38] = 0x07;
 		Output[42] = HidOut->PlayerLed.Brightness;
 		Output[43] = HidOut->PlayerLed.Led;
 		Output[44] = HidOut->Lightbar.R;

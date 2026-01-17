@@ -106,6 +106,7 @@ int main()
 				Gamepad->SetLightbar({0, 255, 0});
 				Gamepad->SetPlayerLed(EDSPlayer::One, 255);
 				PrintControlsHelper();
+				Gamepad->UpdateOutput();
 			}
 
 			Gamepad->UpdateInput(DeltaTime);
@@ -121,12 +122,14 @@ int main()
 				StatusText = "Cross";
 				Gamepad->SetVibration(0, 200);
 				Gamepad->SetLightbar({255, 0, 0});
+				Gamepad->UpdateOutput();
 			}
 			else if (InputState->bCircle)
 			{
 				StatusText = "Circle";
 				Gamepad->SetVibration(100, 0);
 				Gamepad->SetLightbar({0, 0, 255});
+				Gamepad->UpdateOutput();
 			}
 			else if (InputState->bSquare)
 			{
@@ -134,6 +137,7 @@ int main()
 				if (Trigger)
 				{
 					Trigger->SetGameCube(EDSGamepadHand::Right);
+					Gamepad->UpdateOutput();
 				}
 			}
 			else if (InputState->bDpadUp)
@@ -153,6 +157,7 @@ int main()
 				if (Trigger)
 				{
 					Trigger->SetCustomTrigger(EDSGamepadHand::Left, BufferTrigger);
+					Gamepad->UpdateOutput();
 				}
 			}
 			else if (InputState->bDpadDown)
@@ -172,6 +177,7 @@ int main()
 				if (Trigger)
 				{
 					Trigger->SetCustomTrigger(EDSGamepadHand::Right, BufferTrigger);
+					Gamepad->UpdateOutput();
 				}
 			}
 			else if (InputState->bLeftShoulder)
@@ -191,6 +197,7 @@ int main()
 				if (Trigger)
 				{
 					Trigger->SetCustomTrigger(EDSGamepadHand::Left, BufferTrigger);
+					Gamepad->UpdateOutput();
 				}
 			}
 			else if (InputState->bRightShoulder)
@@ -210,6 +217,7 @@ int main()
 				if (Trigger)
 				{
 					Trigger->SetCustomTrigger(EDSGamepadHand::Right, BufferTrigger);
+					Gamepad->UpdateOutput();
 				}
 			}
 			else if (InputState->bDpadLeft)
@@ -229,6 +237,7 @@ int main()
 				if (Trigger)
 				{
 					Trigger->SetCustomTrigger(EDSGamepadHand::Right, BufferTrigger);
+					Gamepad->UpdateOutput();
 				}
 			}
 			else if (InputState->bDpadRight)
@@ -237,6 +246,7 @@ int main()
 				if (Trigger)
 				{
 					Trigger->SetMachineGun26(0xed, 0x03, 0x02, 0x09, EDSGamepadHand::Right);
+					Gamepad->UpdateOutput();
 				}
 			}
 			else if (InputState->bTriangle)
@@ -249,10 +259,12 @@ int main()
 
 				Trigger->StopTrigger(EDSGamepadHand::Left);
 				Trigger->StopTrigger(EDSGamepadHand::Right);
+				Gamepad->UpdateOutput();
 			}
 			else
 			{
 				Gamepad->SetVibration(0, 0);
+				Gamepad->UpdateOutput();
 			}
 
 			printf("\r[%s]", StatusText.c_str());
