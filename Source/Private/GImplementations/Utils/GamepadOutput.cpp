@@ -9,46 +9,55 @@
 #include "GCore/Types/ECoreGamepad.h"
 #include "GCore/Types/Structs/Context/DeviceContext.h"
 #include "GCore/Utils/CR32.h"
+#include <iostream>
+#include <ostream>
 
 void FGamepadOutput::OutputDualShock(FDeviceContext* DeviceContext)
 {
 	const FOutputContext* HidOut = &DeviceContext->Output;
-	size_t Padding = 1;
 	unsigned char* MutableBuffer = DeviceContext->GetRawOutputBuffer();
-	MutableBuffer[0] = 0x11;
-	if (DeviceContext->ConnectionType == EDSDeviceConnection::Bluetooth)
-	{
-		Padding = 2;
-		MutableBuffer[0] = 0x05;
-		MutableBuffer[1] = 0xc0;
-	}
 
-	unsigned char* Output = &MutableBuffer[Padding];
-	Output[0] = 0xff;
+	// Reset buffer
+	std::memset(MutableBuffer, 0, 78);
+
 	if (DeviceContext->ConnectionType == EDSDeviceConnection::Bluetooth)
 	{
-		Output[0] = 0x20;
-		Output[1] = 0x07;
+		// Bluetooth: Report ID 0x11, Data starts at offset 3
+		MutableBuffer[0] = 0x11;
+		MutableBuffer[1] = 0x80; // Report sub-ID
+		MutableBuffer[3] = 0x0F; // Control mask: Rumble, Lightbar, Flash
+
+		MutableBuffer[6] = HidOut->Rumbles.Left;
+		MutableBuffer[7] = HidOut->Rumbles.Right;
+		MutableBuffer[8] = HidOut->Lightbar.R;
+		MutableBuffer[9] = HidOut->Lightbar.G;
+		MutableBuffer[10] = HidOut->Lightbar.B;
+		MutableBuffer[11] = HidOut->FlashLigthbar.Bright_Time;
+		MutableBuffer[12] = HidOut->FlashLigthbar.Toggle_Time;
+
+		const auto CrcChecksum = GCoreUtils::CR32::Compute(MutableBuffer, 74);
+		MutableBuffer[74] = static_cast<unsigned char>((CrcChecksum & 0x000000FF) >> 0UL);
+		MutableBuffer[75] = static_cast<unsigned char>((CrcChecksum & 0x0000FF00) >> 8UL);
+		MutableBuffer[76] = static_cast<unsigned char>((CrcChecksum & 0x00FF0000) >> 16UL);
+		MutableBuffer[77] = static_cast<unsigned char>((CrcChecksum & 0xFF000000) >> 24UL);
+	}
+	else
+	{
+		// USB: Report ID 0x05, Data starts at offset 1
+		MutableBuffer[0] = 0x05;
+		MutableBuffer[1] = 0x0F; // Control mask: Rumble, Lightbar, Flash
+
+		MutableBuffer[4] = HidOut->Rumbles.Left;
+		MutableBuffer[5] = HidOut->Rumbles.Right;
+		MutableBuffer[6] = HidOut->Lightbar.R;
+		MutableBuffer[7] = HidOut->Lightbar.G;
+		MutableBuffer[8] = HidOut->Lightbar.B;
+		MutableBuffer[9] = HidOut->FlashLigthbar.Bright_Time;
+		MutableBuffer[10] = HidOut->FlashLigthbar.Toggle_Time;
 	}
 
 	{
 		std::lock_guard<std::mutex> LockGuard(DeviceContext->OutputMutex);
-		Output[3 + (Padding - 1)] = HidOut->Rumbles.Left;
-		Output[4 + (Padding - 1)] = HidOut->Rumbles.Right;
-		Output[5 + (Padding - 1)] = HidOut->Lightbar.R;
-		Output[6 + (Padding - 1)] = HidOut->Lightbar.G;
-		Output[7 + (Padding - 1)] = HidOut->Lightbar.B;
-		Output[8 + (Padding - 1)] = HidOut->FlashLigthbar.Bright_Time;
-		Output[9 + (Padding - 1)] = HidOut->FlashLigthbar.Toggle_Time;
-
-		if (DeviceContext->ConnectionType == EDSDeviceConnection::Bluetooth)
-		{
-			const auto CrcChecksum = GCoreUtils::CR32::Compute(MutableBuffer, 74);
-			MutableBuffer[0x4A] = static_cast<unsigned char>((CrcChecksum & 0x000000FF) >> 0UL);
-			MutableBuffer[0x4B] = static_cast<unsigned char>((CrcChecksum & 0x0000FF00) >> 8UL);
-			MutableBuffer[0x4C] = static_cast<unsigned char>((CrcChecksum & 0x00FF0000) >> 16UL);
-			MutableBuffer[0x4D] = static_cast<unsigned char>((CrcChecksum & 0xFF000000) >> 24UL);
-		}
 		IPlatformHardwareInfo::Get().Write(DeviceContext);
 	}
 }

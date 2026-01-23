@@ -97,6 +97,8 @@ int main()
 
 		if (Gamepad && Gamepad->IsConnected())
 		{
+			auto Trigger = Gamepad->GetIGamepadTrigger();
+
 			bControllerFound = true;
 			if (!bWasConnected)
 			{
@@ -104,7 +106,12 @@ int main()
 				std::cout << ">>> CONTROLLER CONNECTED! <<<" << std::endl;
 
 				Gamepad->SetLightbar({0, 255, 0});
-				Gamepad->SetPlayerLed(EDSPlayer::One, 255);
+
+				if (Trigger)
+				{
+					Gamepad->SetPlayerLed(EDSPlayer::One, 255);
+				}
+
 				PrintControlsHelper();
 				Gamepad->UpdateOutput();
 			}
@@ -113,29 +120,41 @@ int main()
 			FDeviceContext* Context = Gamepad->GetMutableDeviceContext();
 			FInputContext* InputState = Context->GetInputState();
 
-			auto Trigger = Gamepad->GetIGamepadTrigger();
-
 			std::string StatusText;
 
 			if (InputState->bCross)
 			{
 				StatusText = "Cross";
 				Gamepad->SetVibration(0, 200);
-				Gamepad->SetLightbar({255, 0, 0});
+				if (Trigger)
+				{
+					Gamepad->SetLightbar({255, 0, 0});
+				}
+				else
+				{
+					Gamepad->SetLightbarFlash({255, 0, 0}, 0, 0);
+				}
 				Gamepad->UpdateOutput();
 			}
 			else if (InputState->bCircle)
 			{
 				StatusText = "Circle";
 				Gamepad->SetVibration(100, 0);
-				Gamepad->SetLightbar({0, 0, 255});
+				if (Trigger)
+				{
+					Gamepad->SetLightbar({0, 0, 255});
+				}
+				else
+				{
+					Gamepad->SetLightbarFlash({0, 0, 255}, 0, 0);
+				}
 				Gamepad->UpdateOutput();
 			}
 			else if (InputState->bSquare)
 			{
-				StatusText = "Trigger R: GameCube (0x02)";
 				if (Trigger)
 				{
+					StatusText = "Trigger R: GameCube (0x02)";
 					Trigger->SetGameCube(EDSGamepadHand::Right);
 					Gamepad->UpdateOutput();
 				}
@@ -255,10 +274,16 @@ int main()
 				bWasDebugAnalog = !bWasDebugAnalog;
 
 				Gamepad->SetVibration(0, 0);
-				Gamepad->SetLightbar({0, 255, 0});
-
-				Trigger->StopTrigger(EDSGamepadHand::Left);
-				Trigger->StopTrigger(EDSGamepadHand::Right);
+				if (Trigger)
+				{
+					Gamepad->SetLightbar({0, 255, 0});
+					Trigger->StopTrigger(EDSGamepadHand::Left);
+					Trigger->StopTrigger(EDSGamepadHand::Right);
+				}
+				else
+				{
+					Gamepad->SetLightbarFlash({0, 255, 0}, 0, 0);
+				}
 				Gamepad->UpdateOutput();
 			}
 			else

@@ -42,6 +42,7 @@ void FDualShockLibrary::UpdateInput(float /*Delta*/)
 	{
 		DualShockRaw(&Context->Buffer[1], InputToFill);
 	}
+	Context->SwapInputBuffers();
 }
 
 void FDualShockLibrary::SetVibration(std::uint8_t LeftRumble, std::uint8_t RightRumble)
@@ -57,7 +58,6 @@ void FDualShockLibrary::SetVibration(std::uint8_t LeftRumble, std::uint8_t Right
 	    HidOutput->Rumbles.Right != RightRumble)
 	{
 		HidOutput->Rumbles = {LeftRumble, RightRumble};
-		UpdateOutput();
 	}
 }
 
@@ -71,7 +71,6 @@ void FDualShockLibrary::SetLightbarFlash(DSCoreTypes::FDSColor Color, float Brit
 
 	HidOutput->FlashLigthbar.Bright_Time = static_cast<std::uint8_t>((BrithnessTime / 2.5f) * 255);
 	HidOutput->FlashLigthbar.Toggle_Time = static_cast<std::uint8_t>((ToggleTime / 2.5f) * 255);
-	UpdateOutput();
 }
 
 void FDualShockLibrary::ResetLights()

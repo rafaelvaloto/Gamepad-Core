@@ -3,6 +3,7 @@
 // Planned Release Year: 2025
 
 #include "test_windows_device_info.h"
+#include <iostream>
 #ifdef BUILD_GAMEPAD_CORE_TESTS
 
 extern "C"
@@ -150,12 +151,21 @@ void Ftest_windows_device_info::Write(FDeviceContext* Context)
 		return;
 	}
 
-	size_t InReportLength = Context->DeviceType == EDSDeviceType::DualShock4 ? 32 : 74;
-	size_t OutputReportLength = Context->ConnectionType == EDSDeviceConnection::Bluetooth ? 78 : InReportLength;
+	size_t OutputReportLength = 32;
+	if (Context->DeviceType == EDSDeviceType::DualShock4)
+	{
+		OutputReportLength = Context->ConnectionType == EDSDeviceConnection::Bluetooth ? 78 : 32;
+	}
+	else
+	{
+		// DualSense
+		OutputReportLength = Context->ConnectionType == EDSDeviceConnection::Bluetooth ? 78 : 64;
+	}
 
 	DWORD BytesWritten = 0;
-	if (!WriteFile(Context->Handle, Context->GetRawOutputBuffer(), OutputReportLength, &BytesWritten, nullptr))
+	if (!WriteFile(Context->Handle, Context->GetRawOutputBuffer(), (DWORD)OutputReportLength, &BytesWritten, nullptr))
 	{
+		std::cout << "Error writing to device " << GetLastError() << std::endl;
 	}
 }
 
@@ -178,7 +188,6 @@ bool Ftest_windows_device_info::CreateHandle(FDeviceContext* DeviceContext)
 		return false;
 	}
 
-	// Tentar duplicar o handle para garantir persistência (opcional, mais para segurança interna)
 	HANDLE DuplicatedHandle = INVALID_HANDLE_VALUE;
 	if (DuplicateHandle(GetCurrentProcess(), DeviceHandle, GetCurrentProcess(), &DuplicatedHandle, 0, FALSE, DUPLICATE_SAME_ACCESS))
 	{
@@ -189,6 +198,12 @@ bool Ftest_windows_device_info::CreateHandle(FDeviceContext* DeviceContext)
 	{
 		DeviceContext->Handle = DeviceHandle;
 	}
+
+	if (DeviceContext->DeviceType == EDSDeviceType::DualShock4)
+	{
+		return true;
+	}
+
 	ConfigureFeatures(DeviceContext);
 	return true;
 }
