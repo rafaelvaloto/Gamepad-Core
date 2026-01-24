@@ -49,21 +49,21 @@ endif()
 
 
 # 2. Create Executables
-# Include adaptive-triggers.test.cpp AND the platform implementation file (WindowsDeviceInfo.cpp)
-add_executable(tests-adaptive-triggers
-        Features/adaptive-triggers.test.cpp
+# Include test-gamepad-outputs.cpp AND the platform implementation file (WindowsDeviceInfo.cpp)
+add_executable(test-gamepad-outputs
+        Features/test-gamepad-outputs.cpp
         ${PLATFORM_SOURCES}
 )
 
 # Audio Haptics Integration Test - Reads .wav file and sends to controller
-add_executable(tests-audio-haptics
-        Features/audio-haptics.test.cpp
+add_executable(test-audio-haptics
+        Features/test-audio-haptics.cpp
         ${PLATFORM_SOURCES}
 )
 
-# Gamepad Analog Integration Test
-add_executable(tests-gamepad-analog
-        Features/gamepad-analog.test.cpp
+# Gamepad Input Integration Test
+add_executable(test-gamepad-inputs
+        Features/test-gamepad-inputs.cpp
         ${PLATFORM_SOURCES}
 )
 
@@ -77,35 +77,35 @@ set(COMMON_INCLUDES
         "${CMAKE_SOURCE_DIR}"
 )
 
-target_include_directories(tests-adaptive-triggers PRIVATE ${COMMON_INCLUDES})
-target_include_directories(tests-audio-haptics PRIVATE ${COMMON_INCLUDES})
-target_include_directories(tests-gamepad-analog PRIVATE ${COMMON_INCLUDES})
+target_include_directories(test-gamepad-outputs PRIVATE ${COMMON_INCLUDES})
+target_include_directories(test-audio-haptics PRIVATE ${COMMON_INCLUDES})
+target_include_directories(test-gamepad-inputs PRIVATE ${COMMON_INCLUDES})
 
 # Register tests with CTest
 if(BUILD_TESTS)
-    add_test(NAME AdaptiveTriggers COMMAND tests-adaptive-triggers)
-    add_test(NAME AudioHaptics COMMAND tests-audio-haptics)
-    add_test(NAME GamepadAnalog COMMAND tests-gamepad-analog)
+    add_test(NAME GamepadOutputs COMMAND test-gamepad-outputs)
+    add_test(NAME AudioHaptics COMMAND test-audio-haptics)
+    add_test(NAME GamepadInputs COMMAND test-gamepad-inputs)
 endif()
 
 # Add project root path as a compile definition
-target_compile_definitions(tests-audio-haptics PRIVATE GAMEPAD_CORE_PROJECT_ROOT="${CMAKE_SOURCE_DIR}")
+target_compile_definitions(test-audio-haptics PRIVATE GAMEPAD_CORE_PROJECT_ROOT="${CMAKE_SOURCE_DIR}")
 
 # 4. Linking
 # Link with static lib (GamepadCore) and Windows libs (Setupapi, Hid)
-target_link_libraries(tests-adaptive-triggers
+target_link_libraries(test-gamepad-outputs
         PRIVATE
         GamepadCore
         ${PLATFORM_LIBS}
 )
 
-target_link_libraries(tests-audio-haptics
+target_link_libraries(test-audio-haptics
         PRIVATE
         GamepadCore
         ${PLATFORM_LIBS}
 )
 
-target_link_libraries(tests-gamepad-analog
+target_link_libraries(test-gamepad-inputs
         PRIVATE
         GamepadCore
         ${PLATFORM_LIBS}

@@ -8,6 +8,8 @@
 #include "GCore/Types/ECoreGamepad.h"
 #include "GImplementations/Utils/GamepadInput.h"
 #include "GImplementations/Utils/GamepadOutput.h"
+#include "GImplementations/Utils/GamepadSensors.h"
+#include "GImplementations/Utils/GamepadTouch.h"
 
 bool FDualShockLibrary::Initialize(const FDeviceContext& Context)
 {
@@ -34,14 +36,27 @@ void FDualShockLibrary::UpdateInput(float /*Delta*/)
 	FInputContext* InputToFill = Context->GetBackBuffer();
 
 	using namespace FGamepadInput;
-	if (Context->ConnectionType == EDSDeviceConnection::Bluetooth)
+	const size_t Padding = Context->ConnectionType == EDSDeviceConnection::Bluetooth ? 3 : 1;
+	DualShockRaw(&Context->BufferDS4[Padding], InputToFill);
+
+	if (Context->bEnableGesture || Context->bEnableTouch)
 	{
-		DualShockRaw(&Context->BufferDS4[3], InputToFill);
+		using namespace FGamepadTouch;
+		ProcessTouchDualShock(&Context->Buffer[Padding], InputToFill);
 	}
-	else
+
+	if (Context->bEnableAccelerometerAndGyroscope)
 	{
-		DualShockRaw(&Context->Buffer[1], InputToFill);
+		DSCoreTypes::DSVector3D GyroDeg;
+		DSCoreTypes::DSVector3D AccelG;
+
+		using namespace FGamepadSensors;
+		ProcessMotionDualShock(&Context->Buffer[Padding], Context->Calibration, GyroDeg, AccelG);
+
+		InputToFill->Gyroscope = GyroDeg;
+		InputToFill->Accelerometer = AccelG;
 	}
+
 	Context->SwapInputBuffers();
 }
 

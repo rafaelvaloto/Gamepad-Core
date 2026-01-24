@@ -44,7 +44,7 @@ namespace Ftest_windows_platform
 
 		void ProcessAudioHaptic(FDeviceContext* Context)
 		{
-			Ftest_windows_device_info::ProcessAudioHapitc(Context);
+			Ftest_windows_device_info::ProcessAudioHaptic(Context);
 		}
 
 		/**

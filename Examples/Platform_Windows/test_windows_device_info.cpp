@@ -199,11 +199,6 @@ bool Ftest_windows_device_info::CreateHandle(FDeviceContext* DeviceContext)
 		DeviceContext->Handle = DeviceHandle;
 	}
 
-	if (DeviceContext->DeviceType == EDSDeviceType::DualShock4)
-	{
-		return true;
-	}
-
 	ConfigureFeatures(DeviceContext);
 	return true;
 }
@@ -271,7 +266,7 @@ bool Ftest_windows_device_info::PingOnce(HANDLE Handle, std::int32_t* OutLastErr
 	return true;
 }
 
-void Ftest_windows_device_info::ProcessAudioHapitc(FDeviceContext* Context)
+void Ftest_windows_device_info::ProcessAudioHaptic(FDeviceContext* Context)
 {
 	if (!Context || !Context->Handle)
 	{
@@ -301,20 +296,31 @@ void Ftest_windows_device_info::ProcessAudioHapitc(FDeviceContext* Context)
 
 void Ftest_windows_device_info::ConfigureFeatures(FDeviceContext* Context)
 {
-	unsigned char FeatureBuffer[41] = {0};
-	std::memset(FeatureBuffer, 0, sizeof(FeatureBuffer));
-
-	FeatureBuffer[0] = 0x05;
-	if (!HidD_GetFeature(Context->Handle, FeatureBuffer, 41))
+	if (Context->DeviceType == EDSDeviceType::DualShock4)
 	{
-		const unsigned long Error = GetLastError();
-		return;
+		// DualShock calibration implementation can be added here if needed
+		// unsigned char FeatureBuffer[41] = {0};
+		// std::memset(FeatureBuffer, 0, sizeof(FeatureBuffer));
+		// FeatureBuffer[0] = 0x05;
+		// DualSenseCalibrationSensors(FeatureBuffer, Calibration);
+		// Context->Calibration = Calibration;
 	}
+	else
+	{
+		unsigned char FeatureBuffer[41] = {0};
+		std::memset(FeatureBuffer, 0, sizeof(FeatureBuffer));
 
-	FGamepadCalibration Calibration;
-	using namespace FGamepadSensors;
-	DualSenseCalibrationSensors(FeatureBuffer, Calibration);
+		FeatureBuffer[0] = 0x05;
+		if (!HidD_GetFeature(Context->Handle, FeatureBuffer, 41))
+		{
+			const unsigned long Error = GetLastError();
+			return;
+		}
 
-	Context->Calibration = Calibration;
+		using namespace FGamepadSensors;
+		FGamepadCalibration Calibration;
+		DualSenseCalibrationSensors(FeatureBuffer, Calibration);
+		Context->Calibration = Calibration;
+	}
 }
 #endif

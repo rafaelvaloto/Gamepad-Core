@@ -8,6 +8,12 @@
 
 namespace FGamepadSensors
 {
+	inline void DualShockCalibrationSensors(const std::uint8_t* /*Buffer*/,
+	                                        FGamepadCalibration& /*OutCalibration*/)
+	{
+		// DualShock calibration implementation can be added here if needed
+	}
+
 	inline void DualSenseCalibrationSensors(const std::uint8_t* Buffer,
 	                                        FGamepadCalibration& OutCalibration)
 	{
@@ -73,10 +79,10 @@ namespace FGamepadSensors
 		OutCalibration.AccelFactorZ = (RangeZ != 0.0f) ? (2.0f / RangeZ) : 1.0f;
 	}
 
-	inline void ProcessMotionData(const std::uint8_t* Buffer,
-	                              const FGamepadCalibration& Calibration,
-	                              DSCoreTypes::DSVector3D& FinalGyro,
-	                              DSCoreTypes::DSVector3D& FinalAccel)
+	inline void ProcessMotionDualSense(const std::uint8_t* Buffer,
+	                                   const FGamepadCalibration& Calibration,
+	                                   DSCoreTypes::DSVector3D& FinalGyro,
+	                                   DSCoreTypes::DSVector3D& FinalAccel)
 	{
 		const std::int16_t RawGyroX = static_cast<std::int16_t>(Buffer[15] | (Buffer[16] << 8));
 		const std::int16_t RawGyroY = static_cast<std::int16_t>(Buffer[17] | (Buffer[18] << 8));
@@ -101,6 +107,14 @@ namespace FGamepadSensors
 		FinalAccel.X = (fRawAccX - Calibration.AccelBiasX) * Calibration.AccelFactorX / DS_ACC_RES_PER_G;
 		FinalAccel.Y = (fRawAccY - Calibration.AccelBiasY) * Calibration.AccelFactorY / DS_ACC_RES_PER_G;
 		FinalAccel.Z = (fRawAccZ - Calibration.AccelBiasZ) * Calibration.AccelFactorZ / DS_ACC_RES_PER_G;
+	}
+
+	inline void ProcessMotionDualShock(const std::uint8_t* /*Buffer*/,
+	                                   const FGamepadCalibration& /*Calibration*/,
+	                                   DSCoreTypes::DSVector3D& /*FinalGyro*/,
+	                                   DSCoreTypes::DSVector3D& /*FinalAccel*/)
+	{
+		// DualShock Motion processing can be implemented here if needed
 	}
 
 } // namespace FGamepadSensors

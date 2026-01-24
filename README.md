@@ -189,57 +189,87 @@ cd Gamepad-Core
 
 # 2. Configure and build
 cmake -S . -B cmake-build-release -DCMAKE_BUILD_TYPE=Release -DBUILD_TESTS=ON
-cmake --build cmake-build-release --target tests-adaptive-triggers -j
+cmake --build cmake-build-release --target test-gamepad-outputs -j
 
 # 3. Run (make sure your DualSense/DualShock is connected)
-./cmake-build-release/Tests/Integration/tests-adaptive-triggers
+./cmake-build-release/Tests/Integration/test-gamepad-outputs
 ```
 
 ### 🎮 Test Controls
 Once the console application is running, use your DualSense to test the features:
 
-#### [ FACE BUTTONS ]
-| Button | Action | Effect |
-| :--- | :--- | :--- |
-| **❌ Cross** | Rumble | Heavy Vibration + 🔴 Red Light |
-| **⭕ Circle** | Lightbar | Soft Vibration + 🔵 Blue Light |
-| **🟥 Square** | GameCube | Activates "GameCube-style" trigger snap on **R2** |
-| **🔺 Triangle** | Reset | **Stops all effects** (Panic Button) |
-| **L1 / R1** | Effects | Gallop Effect (L2) / Machine Gun (R2) |
+### Input Testing (test-gamepad-inputs)
+The `test-gamepad-inputs` executable allows you to monitor controller data in real-time. To avoid log misalignment due to terminal width limits, **it is highly recommended to test one parameter at a time**.
 
-#### [ D-PAD (Trigger Mods on R2) ]
-| Button | Action | Effect |
-| :--- | :--- | :--- |
-| **⬆️ Up** | Trigger Effect | **Feedback** (Rigid Resistance) |
-| **⬇️ Down** | Trigger Effect | **Bow** (String Tension) |
-| **⬅️ Left** | Trigger Effect | **Weapon** (Semi-Automatic) |
-| **➡️ Right** | Trigger Effect | **Automatic Gun** (Buzzing) |
+**Usage:**
+```bash
+./test-gamepad-inputs [flags]
+```
+
+**Available Flags:**
+
+| Flag | Description |
+| :--- | :--- |
+| `--buttons` | Displays digital button states (Cross, Circle, etc.) |
+| `--analogs` | Displays stick and trigger positions (Default if no flags) |
+| `--touch` | Displays detailed touchpad data (ID, Fingers, Position, Velocity) |
+| `--sensors` | Displays Motion Sensor data (Gyroscope and Accelerometer) |
+
+*Note: When `--touch` or `--sensors` are passed, the respective hardware features are automatically enabled on the controller.*
 
 ---
 
-## 🎧 Audio Haptics Integration Test
+### Output Testing (test-gamepad-outputs)
+The `test-gamepad-outputs` executable allows you to test various controller feedback mechanisms, including vibrations, lightbar colors, and adaptive triggers.
 
-The `tests-audio-haptics` is an integration test that demonstrates the Audio Haptics feature. It plays a WAV file on your speakers while simultaneously sending haptic feedback to your DualSense controller.
-
-### Running the Test
-
+**Usage:**
 ```bash
-# From the project root
-./cmake-build-release/Tests/Integration/tests-audio-haptics "Tests/Integration/Datasets/ES_Touch_SCENE.wav"
+./test-gamepad-outputs
+```
+
+#### [ FACE BUTTONS ]
+| Button | Action | Effect |
+| :--- | :--- | :--- |
+| **❌ Cross** | Vibration/LED | Heavy Rumble + 🔴 Red Light |
+| **⭕ Circle** | Vibration/LED | Soft Rumble + 🔵 Blue Light |
+| **🟥 Square** | Trigger Effect | Activates **GameCube-style** trigger snap on **R2** |
+| **🔺 Triangle** | Reset | **Stops all effects** (Panic Button) |
+
+#### [ D-PAD & SHOULDERS (Trigger Mods) ]
+| Button | Hand | Effect |
+| :--- | :--- | :--- |
+| **L1** | **L2** | **Gallop** Effect (Vibration on trigger) |
+| **R1** | **R2** | **Machine Gun** Effect (Fast vibration) |
+| **⬆️ Up** | **L2** | **Feedback** (Rigid Resistance) |
+| **⬇️ Down** | **R2** | **Bow** (String Tension) |
+| **⬅️ Left** | **R2** | **Weapon** (Semi-Automatic) |
+| **➡️ Right** | **R2** | **Automatic Gun** (Buzzing) |
+
+---
+
+## 🎧 Audio Haptics Integration Test (test-audio-haptics)
+The `test-audio-haptics` demonstrates the high-fidelity Audio Haptics feature. It can play a WAV file or capture system audio, converting it into tactile feedback for the DualSense.
+
+**Usage:**
+```bash
+# Play a specific WAV file
+./test-audio-haptics "path/to/your/audio.wav"
+
+# Capture system audio (Loopback mode)
+./test-audio-haptics
 ```
 
 **Requirements:**
-- DualSense controller connected via USB or Bluetooth
-- WAV file (any format supported by miniaudio)
+- DualSense controller connected via USB or Bluetooth.
+- **USB:** Provides 48kHz high-fidelity haptics.
+- **Bluetooth:** Provides 3000Hz haptics via HID reports.
 
-The test supports both connection types:
-- **USB:** 48kHz haptics via audio device
-- **Bluetooth:** 3000Hz haptics via HID
+**Supported Modes:**
+- **WAV Playback:** Reads a file and plays it on your default speakers while sending haptics to the controller.
+- **System Audio:** Captures whatever is playing on your computer and converts it to haptics in real-time.
 
 ### 🎵 Music Credits
-
 Special thanks to **Epidemic Sound** for providing high-quality royalty-free music for testing:
-
 > **Track:** *Touch*  
 > **Artist:** *SCENE*  
 > **Source:** [Epidemic Sound](https://www.epidemicsound.com/)
@@ -497,8 +527,8 @@ cmake -S . -B build/release -DCMAKE_BUILD_TYPE=Release
 cmake --build build/release --target GamepadCore -j
 
 # Run integration tests (hardware required)
-cmake --build build/debug --target tests-adaptive-triggers -j
-./build/debug/Tests/Integration/tests-adaptive-triggers
+cmake --build build/debug --target test-gamepad-outputs -j
+./build/debug/Tests/Integration/test-gamepad-outputs
 ```
 
 

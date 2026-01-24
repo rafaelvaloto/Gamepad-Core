@@ -11,7 +11,7 @@
 
 namespace FGamepadTouch
 {
-	inline void ProcessTouch(const unsigned char* HIDInput, FInputContext* Input)
+	inline void ProcessTouchDualSense(const unsigned char* HIDInput, FInputContext* Input)
 	{
 		if (Input->TouchRadius.X == 0.0f || Input->TouchRadius.Y == 0.0f)
 		{
@@ -19,7 +19,7 @@ namespace FGamepadTouch
 		}
 
 		Input->TouchId = 1;
-		Input->bIsTouching = (HIDInput[0x20] & 0x80) != 0;
+		Input->bIsTouching = (HIDInput[0x20] & 0x80) == 0;
 		Input->DirectionRaw = HIDInput[0x28];
 
 		const float AbsX = static_cast<float>(((HIDInput[0x22] & 0x0F) << 8) | HIDInput[0x21]) * 1.f;
@@ -30,7 +30,12 @@ namespace FGamepadTouch
 		const float AbsRelativeY = static_cast<float>((HIDInput[0x26] << 4) | ((HIDInput[0x27] & 0xF0) >> 4)) * 1.f;
 		Input->TouchRelative = {AbsRelativeX, AbsRelativeY};
 
-		Input->TouchFingerCount = Input->bIsTouching && (HIDInput[0x24] & 0x80) != 0 ? 2 : 1;
+		Input->TouchFingerCount = Input->bIsTouching && (HIDInput[0x24] & 0x80) == 0 ? 2 : 1;
+	}
+
+	inline void ProcessTouchDualShock(const unsigned char* /*HIDInput*/, FInputContext* /*Input*/)
+	{
+		// Touch processing can be implemented here if needed
 	}
 
 } // namespace FGamepadTouch
