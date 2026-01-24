@@ -118,6 +118,7 @@ bool FDualSenseLibrary::Initialize(const FDeviceContext& Context)
 		DSContext->BufferAudio[8] = 55;
 		DSContext->BufferAudio[9] = 0xFF;
 
+		ResetLights();
 		UpdateOutput();
 		return true;
 	}
