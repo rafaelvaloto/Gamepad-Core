@@ -54,18 +54,18 @@ namespace FGamepadSensors
 
 		// Gyro Factors
 		// Using float to ensure precision in sum before division
-		const auto Speed2x = static_cast<float>(GyroSpeedPlus + GyroSpeedMinus);
-		const float GyroScale = 937.0f; // Typical speed used in DS4/DS5 factory calibration
+		constexpr float GyroScale = 937.0f; // Typical speed used in DS4/DS5 factory calibration
+		constexpr float ReferenceRangeDegS = GyroScale * 2.0f;
 
 		// ABS logic works better now that they are int16
 		const auto DenomX = static_cast<float>(std::abs(GyroPitchPlus - GyroPitchBias) + std::abs(GyroPitchMinus - GyroPitchBias));
-		OutCalibration.GyroFactorX = (DenomX != 0.0f) ? (Speed2x / DenomX) * (GyroScale / Speed2x) * 2.0f : 1.0f;
+		OutCalibration.GyroFactorX = (DenomX != 0.0f) ? (ReferenceRangeDegS / DenomX) : 1.0f;
 
 		const auto DenomY = static_cast<float>(std::abs(GyroYawPlus - GyroYawBias) + std::abs(GyroYawMinus - GyroYawBias));
-		OutCalibration.GyroFactorY = (DenomY != 0.0f) ? (Speed2x / DenomY) * (GyroScale / Speed2x) * 2.0f : 1.0f;
+		OutCalibration.GyroFactorY = (DenomY != 0.0f) ? (ReferenceRangeDegS / DenomY) : 1.0f;
 
 		const auto DenomZ = static_cast<float>(std::abs(GyroRollPlus - GyroRollBias) + std::abs(GyroRollMinus - GyroRollBias));
-		OutCalibration.GyroFactorZ = (DenomZ != 0.0f) ? (Speed2x / DenomZ) * (GyroScale / Speed2x) * 2.0f : 1.0f;
+		OutCalibration.GyroFactorZ = (DenomZ != 0.0f) ? (ReferenceRangeDegS / DenomZ) : 1.0f;
 
 		// Acc X
 		// IMPORTANT: Now (XPlus - XMinus) will do the correct calculation: e.g.: 8192 - (-8192) = 16384
@@ -120,17 +120,18 @@ namespace FGamepadSensors
 
 		// Gyro Factors
 		// Using float to ensure precision in sum before division
-		const auto Speed2x = static_cast<float>(GyroSpeedPlus + GyroSpeedMinus);
+		constexpr float GyroScale = 937.0f; // Typical speed used in DS4/DS5 factory calibration
+		constexpr float ReferenceRangeDegS = GyroScale * 2.0f;
 
 		// ABS logic works better now that they are int16
 		const auto DenomX = static_cast<float>(std::abs(GyroPitchPlus - GyroPitchBias) + std::abs(GyroPitchMinus - GyroPitchBias));
-		OutCalibration.GyroFactorX = (DenomX != 0.0f) ? (Speed2x / DenomX) : 1.0f;
+		OutCalibration.GyroFactorX = (DenomX != 0.0f) ? (ReferenceRangeDegS / DenomX) : 1.0f;
 
 		const auto DenomY = static_cast<float>(std::abs(GyroYawPlus - GyroYawBias) + std::abs(GyroYawMinus - GyroYawBias));
-		OutCalibration.GyroFactorY = (DenomY != 0.0f) ? (Speed2x / DenomY) : 1.0f;
+		OutCalibration.GyroFactorY = (DenomY != 0.0f) ? (ReferenceRangeDegS / DenomY) : 1.0f;
 
 		const auto DenomZ = static_cast<float>(std::abs(GyroRollPlus - GyroRollBias) + std::abs(GyroRollMinus - GyroRollBias));
-		OutCalibration.GyroFactorZ = (DenomZ != 0.0f) ? (Speed2x / DenomZ) : 1.0f;
+		OutCalibration.GyroFactorZ = (DenomZ != 0.0f) ? (ReferenceRangeDegS / DenomZ) : 1.0f;
 
 		// Acc X
 		// IMPORTANT: Now (XPlus - XMinus) will do the correct calculation: e.g.: 8192 - (-8192) = 16384
