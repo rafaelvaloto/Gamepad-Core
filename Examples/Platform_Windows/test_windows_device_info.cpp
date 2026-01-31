@@ -15,16 +15,15 @@ extern "C"
 #include "GCore/Types/Structs/Config/GamepadCalibration.h"
 #include "GCore/Types/Structs/Context/DeviceContext.h"
 #include "GImplementations/Utils/GamepadSensors.h"
+#include <devpkey.h>
 #include <filesystem>
+#include <functiondiscoverykeys_devpkey.h>
+#include <hidsdi.h>
 #include <initguid.h>
+#include <mmdeviceapi.h>
+#include <propsys.h>
 #include <setupapi.h>
 #include <vector>
-
-#include <hidsdi.h>
-#include <devpkey.h>
-#include <mmdeviceapi.h>
-#include <functiondiscoverykeys_devpkey.h>
-#include <propsys.h>
 
 #pragma comment(lib, "Propsys.lib")
 
@@ -281,7 +280,10 @@ std::string Ftest_windows_device_info::GetContainerId(const std::string& DeviceP
 	HidD_GetHidGuid(&HidGuid);
 
 	HDEVINFO DeviceInfoSet = SetupDiGetClassDevsW(&HidGuid, nullptr, nullptr, DIGCF_PRESENT | DIGCF_DEVICEINTERFACE);
-	if (DeviceInfoSet == INVALID_HANDLE_VALUE) return "";
+	if (DeviceInfoSet == INVALID_HANDLE_VALUE)
+	{
+		return "";
+	}
 
 	SP_DEVICE_INTERFACE_DATA DeviceInterfaceData = {sizeof(SP_DEVICE_INTERFACE_DATA)};
 	if (SetupDiOpenDeviceInterfaceW(DeviceInfoSet, WPath.c_str(), 0, &DeviceInterfaceData))

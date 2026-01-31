@@ -361,7 +361,9 @@ class GamepadAudioWorker
 {
 public:
 	GamepadAudioWorker(ISonyGamepad* InGamepad, const std::string& InWavPath, bool InUseSystemAudio)
-	    : Gamepad(InGamepad), WavFilePath(InWavPath), bUseSystemAudio(InUseSystemAudio)
+	    : Gamepad(InGamepad)
+	    , WavFilePath(InWavPath)
+	    , bUseSystemAudio(InUseSystemAudio)
 	{
 		bFinished.store(false);
 	}
@@ -390,10 +392,13 @@ public:
 private:
 	void Run()
 	{
-		if (!Gamepad) return;
+		if (!Gamepad)
+		{
+			return;
+		}
 
 		int32_t DeviceId = -1; // We don't have the engine ID here easily, but we have the gamepad pointer
-		
+
 		std::cout << "[Worker] Starting audio worker for controller..." << std::endl;
 
 		bool bIsWireless = Gamepad->GetConnectionType() == EDSDeviceConnection::Bluetooth;
@@ -465,7 +470,10 @@ private:
 		if (ma_device_init(nullptr, &deviceConfig, &device) != MA_SUCCESS)
 		{
 			std::cerr << "[Worker Error] Failed to initialize audio device." << std::endl;
-			if (bDecoderInitialized) ma_decoder_uninit(&decoder);
+			if (bDecoderInitialized)
+			{
+				ma_decoder_uninit(&decoder);
+			}
 			return;
 		}
 
@@ -473,7 +481,10 @@ private:
 		{
 			std::cerr << "[Worker Error] Failed to start audio device." << std::endl;
 			ma_device_uninit(&device);
-			if (bDecoderInitialized) ma_decoder_uninit(&decoder);
+			if (bDecoderInitialized)
+			{
+				ma_decoder_uninit(&decoder);
+			}
 			return;
 		}
 
@@ -486,8 +497,11 @@ private:
 
 		// Cleanup
 		ma_device_uninit(&device);
-		if (bDecoderInitialized) ma_decoder_uninit(&decoder);
-		
+		if (bDecoderInitialized)
+		{
+			ma_decoder_uninit(&decoder);
+		}
+
 		if (Gamepad->IsConnected())
 		{
 			Gamepad->SetLightbar({0, 255, 0});

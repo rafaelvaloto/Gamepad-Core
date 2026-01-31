@@ -7,24 +7,24 @@
 #include "GCore/Templates/TGenericHardwareInfo.h"
 #include "GCore/Types/Structs/Context/DeviceContext.h"
 #include "test_windows_device_info.h"
-#include <string>
-#include <iostream>
 #include <cwchar>
-#include <mmdeviceapi.h>
+#include <devpkey.h>
 #include <functiondiscoverykeys_devpkey.h>
+#include <hidsdi.h>
+#include <initguid.h>
+#include <iostream>
+#include <mmdeviceapi.h>
 #include <propsys.h>
 #include <propvarutil.h>
-#include <initguid.h>
 #include <setupapi.h>
-#include <hidsdi.h>
-#include <devpkey.h>
+#include <string>
 
 #pragma comment(lib, "Propsys.lib")
 #pragma comment(lib, "Setupapi.lib")
 #pragma comment(lib, "Hid.lib")
 
-#include <set>
 #include <mutex>
+#include <set>
 
 namespace Ftest_windows_platform
 {
@@ -181,7 +181,7 @@ namespace Ftest_windows_platform
 						// DualSense audio device typically has 4 channels for haptics
 						foundDeviceId = pPlaybackInfos[i].id;
 						pFoundDeviceId = &foundDeviceId;
-						
+
 						// Mark as used
 						FAudioDeviceRegistry::Get().RegisterDevice(foundDeviceId);
 						break;
