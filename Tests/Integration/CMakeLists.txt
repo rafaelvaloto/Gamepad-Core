@@ -60,6 +60,14 @@ add_executable(test-audio-haptics
         Features/test-audio-haptics.cpp
         ${PLATFORM_SOURCES}
 )
+target_compile_definitions(test-audio-haptics PRIVATE BUILD_GAMEPAD_CORE_TESTS)
+
+# Channels Haptics Integration Test - Different WAV for different controllers
+add_executable(test-channels-haptics
+        Features/test-channels-haptics.cpp
+        ${PLATFORM_SOURCES}
+)
+target_compile_definitions(test-channels-haptics PRIVATE BUILD_GAMEPAD_CORE_TESTS)
 
 # Gamepad Input Integration Test
 add_executable(test-gamepad-inputs
@@ -79,6 +87,7 @@ set(COMMON_INCLUDES
 
 target_include_directories(test-gamepad-outputs PRIVATE ${COMMON_INCLUDES})
 target_include_directories(test-audio-haptics PRIVATE ${COMMON_INCLUDES})
+target_include_directories(test-channels-haptics PRIVATE ${COMMON_INCLUDES})
 target_include_directories(test-gamepad-inputs PRIVATE ${COMMON_INCLUDES})
 
 # Register tests with CTest
@@ -90,6 +99,7 @@ endif()
 
 # Add project root path as a compile definition
 target_compile_definitions(test-audio-haptics PRIVATE GAMEPAD_CORE_PROJECT_ROOT="${CMAKE_SOURCE_DIR}")
+target_compile_definitions(test-channels-haptics PRIVATE GAMEPAD_CORE_PROJECT_ROOT="${CMAKE_SOURCE_DIR}")
 
 # 4. Linking
 # Link with static lib (GamepadCore) and Windows libs (Setupapi, Hid)
@@ -100,6 +110,12 @@ target_link_libraries(test-gamepad-outputs
 )
 
 target_link_libraries(test-audio-haptics
+        PRIVATE
+        GamepadCore
+        ${PLATFORM_LIBS}
+)
+
+target_link_libraries(test-channels-haptics
         PRIVATE
         GamepadCore
         ${PLATFORM_LIBS}

@@ -40,7 +40,7 @@
 > std::memset(RawOutput, 0, 78); // 78 is the default output buffer size
 > ```
 
-## 🎮 Release v0.0.12
+## 🎮 Release >= v0.0.12
 
 > [!IMPORTANT]
 > **After calling any effect event on the controller (lights, triggers, vibrations, etc.), it is always necessary to call `Gamepad->UpdateOutput()` to apply the changes.**
@@ -252,8 +252,8 @@ The `test-audio-haptics` demonstrates the high-fidelity Audio Haptics feature. I
 
 **Usage:**
 ```bash
-# Play a specific WAV file
-./test-audio-haptics "path/to/your/audio.wav"
+# Play a specific WAV file (using relative path)
+./test-audio-haptics "Tests/Integration/Datasets/ES_Touch_SCENE.wav"
 
 # Capture system audio (Loopback mode)
 ./test-audio-haptics
@@ -268,11 +268,35 @@ The `test-audio-haptics` demonstrates the high-fidelity Audio Haptics feature. I
 - **WAV Playback:** Reads a file and plays it on your default speakers while sending haptics to the controller.
 - **System Audio:** Captures whatever is playing on your computer and converts it to haptics in real-time.
 
+---
+
+## 🎛️ Multi-Channel Haptics Test (test-channels-haptics)
+The `test-channels-haptics` allows testing multiple controllers simultaneously with independent audio sources for haptics.
+
+**Usage:**
+```bash
+# Assign different WAV files to different gamepads (using relative paths)
+./test-channels-haptics "Tests/Integration/Datasets/ES_Touch_SCENE.wav" "Tests/Integration/Datasets/ES_Replay_Lawd_Ito.wav"
+
+# If more controllers are connected than files provided, the last file is repeated.
+# If no file is provided, it defaults to System Audio Loopback for all controllers.
+```
+
+**Features:**
+- **Independent Channels:** Gamepad 1 gets the first WAV, Gamepad 2 gets the second, and so on.
+- **Automatic Assignment:** Automatically detects connected gamepads and starts a dedicated audio worker for each.
+- **Hot-Swap Support:** New controllers connected during the test will automatically start receiving haptic feedback.
+
 ### 🎵 Music Credits
 Special thanks to **Epidemic Sound** for providing high-quality royalty-free music for testing:
-> **Track:** *Touch*  
-> **Artist:** *SCENE*  
-> **Source:** [Epidemic Sound](https://www.epidemicsound.com/)
+
+1. **Track:** *Touch*  
+   **Artist:** *SCENE*  
+   **Source:** [Epidemic Sound](https://www.epidemicsound.com/)
+
+2. **Track:** *Replay*  
+   **Artist:** *Lawd Ito*  
+   **Source:** [Epidemic Sound](https://www.epidemicsound.com/)
 
 ---
 

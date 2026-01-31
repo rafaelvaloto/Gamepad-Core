@@ -16,6 +16,8 @@
 #include <queue>
 #include <thread>
 #include <vector>
+#include <filesystem>
+namespace fs = std::filesystem;
 
 // miniaudio for audio playback and WAV decoding
 #include "GImplementations/Utils/GamepadAudio.h"
@@ -427,6 +429,17 @@ private:
 
 		if (!bUseSystemAudio)
 		{
+			fs::path p(WavFilePath);
+			if (!fs::exists(p))
+			{
+				fs::path alternativePath = fs::path(GAMEPAD_CORE_PROJECT_ROOT) / WavFilePath;
+				if (fs::exists(alternativePath))
+				{
+					WavFilePath = alternativePath.string();
+					std::cout << "[Worker] Resolved path to: " << WavFilePath << std::endl;
+				}
+			}
+
 			ma_decoder_config decoderConfig = ma_decoder_config_init(ma_format_f32, 2, 48000);
 			if (ma_decoder_init_file(WavFilePath.c_str(), &decoderConfig, &decoder) == MA_SUCCESS)
 			{
@@ -586,6 +599,17 @@ int main(int argc, char* argv[])
 
 	if (!bUseSystemAudio)
 	{
+		fs::path p(WavFilePath);
+		if (!fs::exists(p))
+		{
+			fs::path alternativePath = fs::path(GAMEPAD_CORE_PROJECT_ROOT) / WavFilePath;
+			if (fs::exists(alternativePath))
+			{
+				WavFilePath = alternativePath.string();
+				std::cout << "[System] Resolved path to: " << WavFilePath << std::endl;
+			}
+		}
+
 		std::cout << "[System] Loading WAV file: " << WavFilePath << std::endl;
 
 		// Initialize decoder (output as float, stereo, 48kHz)

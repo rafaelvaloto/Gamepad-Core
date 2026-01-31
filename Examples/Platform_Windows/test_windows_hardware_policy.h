@@ -8,16 +8,41 @@
 #include "GCore/Types/Structs/Context/DeviceContext.h"
 #include "test_windows_device_info.h"
 #include <cwchar>
-#include <devpkey.h>
-#include <functiondiscoverykeys_devpkey.h>
-#include <hidsdi.h>
-#include <initguid.h>
-#include <iostream>
-#include <mmdeviceapi.h>
 #include <propsys.h>
-#include <propvarutil.h>
+#include <mmdeviceapi.h>
 #include <setupapi.h>
 #include <string>
+
+#ifdef DEFINE_PROPERTYKEY
+#undef DEFINE_PROPERTYKEY
+#endif
+#define DEFINE_PROPERTYKEY(name, l, w1, w2, b1, b2, b3, b4, b5, b6, b7, b8, pid) \
+    extern "C" const __declspec(selectany) PROPERTYKEY name \
+        = { { l, w1, w2, { b1, b2,  b3,  b4,  b5,  b6,  b7,  b8 } }, pid }
+
+#ifdef DEFINE_DEVPROPKEY
+#undef DEFINE_DEVPROPKEY
+#endif
+#define DEFINE_DEVPROPKEY(name, l, w1, w2, b1, b2, b3, b4, b5, b6, b7, b8, pid) \
+    extern "C" const __declspec(selectany) DEVPROPKEY name \
+        = { { l, w1, w2, { b1, b2,  b3,  b4,  b5,  b6,  b7,  b8 } }, pid }
+
+#include <initguid.h>
+
+#ifdef PKEY_Device_ContainerId
+#undef PKEY_Device_ContainerId
+#endif
+DEFINE_PROPERTYKEY(PKEY_Device_ContainerId, 0x8c7ed206, 0x3f8a, 0x4827, 0xb3, 0xab, 0xae, 0x9e, 0x1f, 0xae, 0xfc, 0x6c, 2);
+
+#ifndef DEVPKEY_Device_ContainerId
+DEFINE_DEVPROPKEY(DEVPKEY_Device_ContainerId, 0x8c7ed206, 0x3f8a, 0x4827, 0xb3, 0xab, 0xae, 0x9e, 0x1f, 0xae, 0xfc, 0x6c, 2);
+#endif
+
+#ifndef PKEY_NAME
+DEFINE_PROPERTYKEY(PKEY_NAME, 0xb725f130, 0x47ef, 0x101a, 0xa5, 0xf1, 0x02, 0x60, 0x8c, 0x9e, 0xeb, 0xac, 10);
+#endif
+
+#define _FUNCTIONDISCOVERYKEYS_DEV_PKEY_H_
 
 #pragma comment(lib, "Propsys.lib")
 #pragma comment(lib, "Setupapi.lib")
