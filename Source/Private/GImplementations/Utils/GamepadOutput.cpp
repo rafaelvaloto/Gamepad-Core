@@ -259,6 +259,6 @@ void FGamepadOutput::SendAudioHapticAdvanced(
 		DeviceContext->BufferAudio[CrcOffset + 2] = static_cast<unsigned char>((CrcChecksum & 0x00FF0000) >> 16UL);
 		DeviceContext->BufferAudio[CrcOffset + 3] = static_cast<unsigned char>((CrcChecksum & 0xFF000000) >> 24UL);
 
-		IPlatformHardwareInfo::Get().ProcessAudioHapitc(DeviceContext);
+		IPlatformHardwareInfo::Get().ProcessAudioHaptic(DeviceContext);
 	}
 }

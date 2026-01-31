@@ -43,10 +43,10 @@ using TestHardwareInfo = Ftest_linux_platform::Ftest_linux_hardware;
 // ============================================================================
 // Audio Haptics Constants (Based on AudioHapticsListener)
 // ============================================================================
-constexpr float kLowPassAlpha = 0.98f;
+constexpr float kLowPassAlpha = 1.0f;
 constexpr float kOneMinusAlpha = 1.0f - kLowPassAlpha;
 
-constexpr float kLowPassAlphaBt = 0.50f;
+constexpr float kLowPassAlphaBt = 1.0f;
 constexpr float kOneMinusAlphaBt = 1.0f - kLowPassAlphaBt;
 
 // ============================================================================
@@ -462,9 +462,11 @@ int main(int argc, char* argv[])
 			std::cout << "[System] Connection Type: " << (bIsWireless ? "Bluetooth (3000Hz)" : "USB (48kHz)") << std::endl;
 
 			// Set visual feedback
-			Gamepad->SetLightbar({0, 255, 128});
+			Gamepad->SetLightbar({255, 255, 255});
 			Gamepad->SetPlayerLed(EDSPlayer::One, 255);
-			// std::this_thread::sleep_for(std::chrono::milliseconds(50));
+			std::cout << "[System] SetLightbar {255, 255, 255}" << std::endl;
+			Gamepad->UpdateOutput();
+			std::this_thread::sleep_for(std::chrono::milliseconds(50));
 
 			// Get Audio Haptics interface
 			IGamepadAudioHaptics* AudioHaptics = Gamepad->GetIGamepadHaptics();

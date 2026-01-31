@@ -143,7 +143,7 @@ public:
 	 * @param Context Pointer to the device context used to process audio haptic
 	 * feedback.
 	 */
-	virtual void ProcessAudioHapitc(FDeviceContext* Context) = 0;
+	virtual void ProcessAudioHaptic(FDeviceContext* Context) = 0;
 	/**
 	 * Processes audio haptic feedback for the given device context.
 	 *

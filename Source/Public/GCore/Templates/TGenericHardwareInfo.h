@@ -66,7 +66,7 @@ namespace GamepadCore
 			Policy.InvalidateHandle(Context);
 		}
 
-		void ProcessAudioHapitc(FDeviceContext* Context) override
+		void ProcessAudioHaptic(FDeviceContext* Context) override
 		{
 			Policy.ProcessAudioHaptic(Context);
 		}
