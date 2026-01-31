@@ -355,6 +355,173 @@ void ConsumeHapticsQueue(IGamepadAudioHaptics* AudioHaptics, AudioCallbackData& 
 }
 
 // ============================================================================
+// Gamepad Audio Worker - Manages audio/haptics for a single controller
+// ============================================================================
+class GamepadAudioWorker
+{
+public:
+	GamepadAudioWorker(ISonyGamepad* InGamepad, const std::string& InWavPath, bool InUseSystemAudio)
+	    : Gamepad(InGamepad), WavFilePath(InWavPath), bUseSystemAudio(InUseSystemAudio)
+	{
+		bFinished.store(false);
+	}
+
+	~GamepadAudioWorker()
+	{
+		Stop();
+	}
+
+	void Start()
+	{
+		WorkerThread = std::thread(&GamepadAudioWorker::Run, this);
+	}
+
+	void Stop()
+	{
+		bFinished.store(true);
+		if (WorkerThread.joinable())
+		{
+			WorkerThread.join();
+		}
+	}
+
+	bool IsFinished() const { return bFinished.load(); }
+
+private:
+	void Run()
+	{
+		if (!Gamepad) return;
+
+		int32_t DeviceId = -1; // We don't have the engine ID here easily, but we have the gamepad pointer
+		
+		std::cout << "[Worker] Starting audio worker for controller..." << std::endl;
+
+		bool bIsWireless = Gamepad->GetConnectionType() == EDSDeviceConnection::Bluetooth;
+
+		// Get Audio Haptics interface
+		IGamepadAudioHaptics* AudioHaptics = Gamepad->GetIGamepadHaptics();
+		if (!AudioHaptics)
+		{
+			std::cerr << "[Worker Error] Audio haptics interface not available." << std::endl;
+			return;
+		}
+
+		// Initialize AudioContext for USB haptics
+		FDeviceContext* Context = Gamepad->GetMutableDeviceContext();
+		if (!bIsWireless && Context)
+		{
+			if (!Context->AudioContext || !Context->AudioContext->IsValid())
+			{
+				IPlatformHardwareInfo::Get().InitializeAudioDevice(Context);
+			}
+		}
+
+		ma_decoder decoder;
+		ma_uint64 totalFrames = 0;
+		bool bDecoderInitialized = false;
+
+		if (!bUseSystemAudio)
+		{
+			ma_decoder_config decoderConfig = ma_decoder_config_init(ma_format_f32, 2, 48000);
+			if (ma_decoder_init_file(WavFilePath.c_str(), &decoderConfig, &decoder) == MA_SUCCESS)
+			{
+				ma_decoder_get_length_in_pcm_frames(&decoder, &totalFrames);
+				bDecoderInitialized = true;
+			}
+			else
+			{
+				std::cerr << "[Worker Error] Failed to load WAV file: " << WavFilePath << std::endl;
+				return;
+			}
+		}
+
+		// Setup callback data
+		AudioCallbackData callbackData;
+		callbackData.pDecoder = bDecoderInitialized ? &decoder : nullptr;
+		callbackData.bIsSystemAudio = bUseSystemAudio;
+		callbackData.bIsWireless = bIsWireless;
+
+		// Initialize playback device
+		ma_device_config deviceConfig;
+		if (bUseSystemAudio)
+		{
+			deviceConfig = ma_device_config_init(ma_device_type_loopback);
+			deviceConfig.capture.format = ma_format_f32;
+			deviceConfig.capture.channels = 2;
+			deviceConfig.wasapi.loopbackProcessID = 0;
+		}
+		else
+		{
+			deviceConfig = ma_device_config_init(ma_device_type_playback);
+			deviceConfig.playback.format = ma_format_f32;
+			deviceConfig.playback.channels = 2;
+		}
+
+		deviceConfig.sampleRate = 48000;
+		deviceConfig.dataCallback = AudioDataCallback;
+		deviceConfig.pUserData = &callbackData;
+
+		ma_device device;
+		if (ma_device_init(nullptr, &deviceConfig, &device) != MA_SUCCESS)
+		{
+			std::cerr << "[Worker Error] Failed to initialize audio device." << std::endl;
+			if (bDecoderInitialized) ma_decoder_uninit(&decoder);
+			return;
+		}
+
+		if (ma_device_start(&device) != MA_SUCCESS)
+		{
+			std::cerr << "[Worker Error] Failed to start audio device." << std::endl;
+			ma_device_uninit(&device);
+			if (bDecoderInitialized) ma_decoder_uninit(&decoder);
+			return;
+		}
+
+		// Main loop for this controller
+		while (!callbackData.bFinished && !bFinished.load() && Gamepad->IsConnected())
+		{
+			ConsumeHapticsQueue(AudioHaptics, callbackData);
+			std::this_thread::sleep_for(std::chrono::milliseconds(10));
+		}
+
+		// Cleanup
+		ma_device_uninit(&device);
+		if (bDecoderInitialized) ma_decoder_uninit(&decoder);
+		
+		if (Gamepad->IsConnected())
+		{
+			Gamepad->SetLightbar({0, 255, 0});
+			Gamepad->UpdateOutput();
+		}
+
+		std::cout << "[Worker] Audio worker finished." << std::endl;
+		bFinished.store(true);
+	}
+
+	ISonyGamepad* Gamepad;
+	std::string WavFilePath;
+	bool bUseSystemAudio;
+	std::atomic<bool> bFinished;
+	std::thread WorkerThread;
+};
+
+// Custom policy to notify about new gamepads
+struct FAudioTestRegistryPolicy : public Ftest_device_registry_policy
+{
+	std::vector<int32_t> NewGamepads;
+	std::mutex NewGamepadsMutex;
+
+	void DispatchNewGamepad(EngineIdType GamepadId)
+	{
+		std::lock_guard<std::mutex> Lock(NewGamepadsMutex);
+		NewGamepads.push_back(GamepadId);
+		std::cout << "[Policy] New Gamepad Registered: " << GamepadId << std::endl;
+	}
+};
+
+using AudioTestDeviceRegistry = GamepadCore::TBasicDeviceRegistry<FAudioTestRegistryPolicy>;
+
+// ============================================================================
 // Helper Functions
 // ============================================================================
 void PrintHelp()
@@ -435,188 +602,83 @@ int main(int argc, char* argv[])
 	IPlatformHardwareInfo::SetInstance(std::move(HardwareImpl));
 
 	// Initialize Registry
-	auto Registry = std::make_unique<TestDeviceRegistry>();
+	auto Registry = std::make_unique<AudioTestDeviceRegistry>();
 
 	std::cout << "[System] Waiting for controller connection via USB/BT..." << std::endl;
+	std::cout << "[System] Press Ctrl+C to stop." << std::endl;
 
-	const std::int32_t TargetDeviceId = 0;
-	bool bControllerFound = false;
-	int MaxWaitIterations = 300;
+	std::unordered_map<int32_t, std::unique_ptr<GamepadAudioWorker>> ActiveWorkers;
 
-	while (!bControllerFound && MaxWaitIterations-- > 0)
+	while (true)
 	{
 		std::this_thread::sleep_for(std::chrono::milliseconds(16));
 		float DeltaTime = 0.016f;
 
 		Registry->PlugAndPlay(DeltaTime);
-		ISonyGamepad* Gamepad = Registry->GetLibrary(TargetDeviceId);
 
-		if (Gamepad && Gamepad->IsConnected())
+		// Check for new gamepads from policy
 		{
-			Gamepad->DualSenseSettings(0x10, 0x01, 0x01, 0x00, 0x7C, 0xFC, 0x00, 0x00);
-
-			bControllerFound = true;
-			std::cout << ">>> CONTROLLER CONNECTED! <<<" << std::endl;
-
-			bool bIsWireless = Gamepad->GetConnectionType() == EDSDeviceConnection::Bluetooth;
-			std::cout << "[System] Connection Type: " << (bIsWireless ? "Bluetooth (3000Hz)" : "USB (48kHz)") << std::endl;
-
-			// Set visual feedback
-			Gamepad->SetLightbar({255, 255, 255});
-			Gamepad->SetPlayerLed(EDSPlayer::One, 255);
-			std::cout << "[System] SetLightbar {255, 255, 255}" << std::endl;
-			Gamepad->UpdateOutput();
-			std::this_thread::sleep_for(std::chrono::milliseconds(50));
-
-			// Get Audio Haptics interface
-			IGamepadAudioHaptics* AudioHaptics = Gamepad->GetIGamepadHaptics();
-			if (!AudioHaptics)
+			std::lock_guard<std::mutex> Lock(Registry->Policy.NewGamepadsMutex);
+			for (int32_t GamepadId : Registry->Policy.NewGamepads)
 			{
-				std::cerr << "[Error] Audio haptics interface not available." << std::endl;
-				ma_decoder_uninit(&decoder);
-				return 1;
-			}
-
-			// Initialize AudioContext for USB haptics
-			FDeviceContext* Context = Gamepad->GetMutableDeviceContext();
-			if (!bIsWireless && Context)
-			{
-				std::cout << "[System] Initializing AudioContext for USB haptics..." << std::endl;
-				if (!Context->AudioContext || !Context->AudioContext->IsValid())
+				ISonyGamepad* Gamepad = Registry->GetLibrary(GamepadId);
+				if (Gamepad)
 				{
-					IPlatformHardwareInfo::Get().InitializeAudioDevice(Context);
-					if (Context->AudioContext && Context->AudioContext->IsValid())
+					if (GamepadId == 1)
 					{
-						std::cout << "[System] AudioContext initialized!" << std::endl;
+						Gamepad->SetLightbar({200, 255, 0});
+						Gamepad->SetPlayerLed(EDSPlayer::Two, 0xff);
+						Gamepad->DualSenseSettings(0, 0, 0, 0, 0, 0xFC, 0, 0);
+						Gamepad->UpdateOutput();
+						std::this_thread::sleep_for(std::chrono::seconds(1));
 					}
-					else
+					else if (GamepadId == 0)
 					{
-						std::cout << "[Warning] AudioContext failed. USB haptics may not work." << std::endl;
+						Gamepad->SetLightbar({0, 255, 255});
+						Gamepad->SetPlayerLed(EDSPlayer::One, 0xff);
+						Gamepad->DualSenseSettings(0, 0, 0, 0, 0, 0xFC, 0, 0);
+						Gamepad->UpdateOutput();
+						std::this_thread::sleep_for(std::chrono::seconds(1));
 					}
+
+					std::cout << "[System] Creating worker for GamepadId: " << GamepadId << std::endl;
+					auto Worker = std::make_unique<GamepadAudioWorker>(Gamepad, WavFilePath, bUseSystemAudio);
+					Worker->Start();
+					ActiveWorkers[GamepadId] = std::move(Worker);
 				}
 			}
-
-			// Setup callback data
-			AudioCallbackData callbackData;
-			callbackData.pDecoder = bUseSystemAudio ? nullptr : &decoder;
-			callbackData.bIsSystemAudio = bUseSystemAudio;
-			callbackData.bIsWireless = bIsWireless;
-
-			// Initialize playback device (default speakers at 48kHz)
-			ma_device_config deviceConfig;
-			if (bUseSystemAudio)
-			{
-				deviceConfig = ma_device_config_init(ma_device_type_loopback);
-				deviceConfig.capture.format = ma_format_f32;
-				deviceConfig.capture.channels = 2;
-				deviceConfig.capture.pDeviceID = nullptr;  // Default
-				deviceConfig.wasapi.loopbackProcessID = 0; // Capture from all processes
-			}
-			else
-			{
-				deviceConfig = ma_device_config_init(ma_device_type_playback);
-				deviceConfig.playback.format = ma_format_f32;
-				deviceConfig.playback.channels = 2;
-			}
-
-			deviceConfig.sampleRate = 48000;
-			deviceConfig.dataCallback = AudioDataCallback;
-			deviceConfig.pUserData = &callbackData;
-
-			ma_device device;
-			if (ma_device_init(nullptr, &deviceConfig, &device) != MA_SUCCESS)
-			{
-				std::cerr << "[Error] Failed to initialize audio device." << std::endl;
-				if (!bUseSystemAudio)
-				{
-					ma_decoder_uninit(&decoder);
-				}
-				return 1;
-			}
-
-			if (bUseSystemAudio)
-			{
-				std::cout << "[AudioCapture] Capturing from: " << device.capture.name << " (Loopback)" << std::endl;
-			}
-			else
-			{
-				std::cout << "[AudioPlayback] Playing on: " << device.playback.name << std::endl;
-			}
-
-			std::cout << "[System] Starting audio haptics..." << std::endl;
-
-#ifdef AUTOMATED_TESTS
-			std::cout << "[Test] Modo automatizado ativo. O teste encerrará em 5s." << std::endl;
-			auto startTime = std::chrono::steady_clock::now();
-#endif
-
-			// Start playback/capture
-			if (ma_device_start(&device) != MA_SUCCESS)
-			{
-				std::cerr << "[Error] Failed to start audio device." << std::endl;
-				ma_device_uninit(&device);
-				if (!bUseSystemAudio)
-				{
-					ma_decoder_uninit(&decoder);
-				}
-				return 1;
-			}
-
-			// Main loop: play audio and send haptics
-			while (!callbackData.bFinished)
-			{
-#ifdef AUTOMATED_TESTS
-				auto now = std::chrono::steady_clock::now();
-				if (std::chrono::duration_cast<std::chrono::seconds>(now - startTime).count() >= 5)
-				{
-					std::cout << "\n[Test] Tempo limite atingido (5s). Encerrando..." << std::endl;
-					callbackData.bFinished = true;
-					break;
-				}
-#endif
-				// Consume haptics queue and send to controller
-				ConsumeHapticsQueue(AudioHaptics, callbackData);
-
-				// Print progress
-				if (!bUseSystemAudio)
-				{
-					float progress = (static_cast<float>(callbackData.framesPlayed) / totalFrames) * 100.0f;
-					std::cout << "\r[Playing] " << std::fixed << std::setprecision(1) << progress << "%" << std::flush;
-				}
-				else
-				{
-					std::cout << "\r[Capturing System Audio...] " << std::flush;
-					std::this_thread::sleep_for(std::chrono::milliseconds(10));
-				}
-			}
-
-			// Final consume to empty queues
-			ConsumeHapticsQueue(AudioHaptics, callbackData);
-
-			// Small delay to let audio finish
-			std::this_thread::sleep_for(std::chrono::milliseconds(200));
-
-			// Cleanup
-			ma_device_uninit(&device);
-
-			std::cout << "\n[System] Audio haptics playback completed!" << std::endl;
-
-			// Reset controller state
-			Gamepad->SetLightbar({0, 255, 0});
-			Gamepad->SetVibration(0, 0);
+			Registry->Policy.NewGamepads.clear();
 		}
-	}
 
-	ma_decoder_uninit(&decoder);
+		// Cleanup finished or disconnected workers
+		for (auto it = ActiveWorkers.begin(); it != ActiveWorkers.end();)
+		{
+			bool bIsConnected = false;
+			ISonyGamepad* Gamepad = Registry->GetLibrary(it->first);
+			if (Gamepad && Gamepad->IsConnected())
+			{
+				bIsConnected = true;
+			}
 
-	if (!bControllerFound)
-	{
+			if (it->second->IsFinished() || !bIsConnected)
+			{
+				std::cout << "[System] Removing worker for GamepadId: " << it->first << std::endl;
+				it = ActiveWorkers.erase(it);
+			}
+			else
+			{
+				++it;
+			}
+		}
+
 #ifdef AUTOMATED_TESTS
-		std::cout << "[Test] No controller found in automated mode. Skipping test." << std::endl;
-		return 0; // Skip (treat as success for CI if hardware is missing)
-#else
-		std::cerr << "[Error] No controller found." << std::endl;
-		return 1;
+		static auto StartTime = std::chrono::steady_clock::now();
+		auto Now = std::chrono::steady_clock::now();
+		if (std::chrono::duration_cast<std::chrono::seconds>(Now - StartTime).count() >= 10)
+		{
+			std::cout << "[Test] Automated timeout reached. Exiting." << std::endl;
+			break;
+		}
 #endif
 	}
 

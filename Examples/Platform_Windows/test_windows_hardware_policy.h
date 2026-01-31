@@ -8,11 +8,70 @@
 #include "GCore/Types/Structs/Context/DeviceContext.h"
 #include "test_windows_device_info.h"
 #include <string>
+#include <iostream>
+#include <cwchar>
+#include <mmdeviceapi.h>
+#include <functiondiscoverykeys_devpkey.h>
+#include <propsys.h>
+#include <propvarutil.h>
+#include <initguid.h>
+#include <setupapi.h>
+#include <hidsdi.h>
+#include <devpkey.h>
+
+#pragma comment(lib, "Propsys.lib")
+#pragma comment(lib, "Setupapi.lib")
+#pragma comment(lib, "Hid.lib")
+
+#include <set>
+#include <mutex>
 
 namespace Ftest_windows_platform
 {
 	struct Ftest_windows_hardware_policy;
 	using Ftest_windows_hardware = GamepadCore::TGenericHardwareInfo<Ftest_windows_hardware_policy>;
+
+	/**
+	 * @brief Global registry to track which audio devices are currently in use
+	 * to ensure multiple DualSense controllers get separate audio channels.
+	 */
+	struct FAudioDeviceRegistry
+	{
+		static FAudioDeviceRegistry& Get()
+		{
+			static FAudioDeviceRegistry Instance;
+			return Instance;
+		}
+
+		void RegisterDevice(const ma_device_id& DeviceId)
+		{
+			std::lock_guard<std::mutex> Lock(Mutex);
+			UsedDeviceIds.insert(DeviceId);
+		}
+
+		void UnregisterDevice(const ma_device_id& DeviceId)
+		{
+			std::lock_guard<std::mutex> Lock(Mutex);
+			UsedDeviceIds.erase(DeviceId);
+		}
+
+		bool IsDeviceInUse(const ma_device_id& DeviceId)
+		{
+			std::lock_guard<std::mutex> Lock(Mutex);
+			return UsedDeviceIds.find(DeviceId) != UsedDeviceIds.end();
+		}
+
+	private:
+		std::mutex Mutex;
+		struct DeviceIdCompare
+		{
+			bool operator()(const ma_device_id& lhs, const ma_device_id& rhs) const
+			{
+				return std::memcmp(&lhs, &rhs, sizeof(ma_device_id)) < 0;
+			}
+		};
+		std::set<ma_device_id, DeviceIdCompare> UsedDeviceIds;
+	};
 
 	struct Ftest_windows_hardware_policy
 	{
@@ -39,6 +98,13 @@ namespace Ftest_windows_platform
 
 		void InvalidateHandle(FDeviceContext* Context)
 		{
+			if (Context && Context->AudioContext)
+			{
+				if (Context->AudioContext->bHasDeviceId)
+				{
+					FAudioDeviceRegistry::Get().UnregisterDevice(Context->AudioContext->DeviceId);
+				}
+			}
 			Ftest_windows_device_info::InvalidateHandle(Context);
 		}
 
@@ -82,6 +148,9 @@ namespace Ftest_windows_platform
 				return;
 			}
 
+			// Get Gamepad Container ID
+			std::string GamepadContainerId = Ftest_windows_device_info::GetContainerId(Context->Path);
+
 			// Search for DualSense audio device
 			ma_device_id* pFoundDeviceId = nullptr;
 			ma_device_id foundDeviceId;
@@ -95,11 +164,28 @@ namespace Ftest_windows_platform
 				if (deviceName.find("DualSense") != std::string::npos ||
 				    deviceName.find("Wireless Controller") != std::string::npos)
 				{
-					// Verify it has 4 channels (stereo + haptic L/R)
-					// DualSense audio device typically has 4 channels for haptics
-					foundDeviceId = pPlaybackInfos[i].id;
-					pFoundDeviceId = &foundDeviceId;
-					break;
+					// Match by Container ID if possible
+					if (!GamepadContainerId.empty())
+					{
+						std::string AudioContainerId = Ftest_windows_device_info::GetAudioContainerId(pPlaybackInfos[i].id.wasapi);
+						if (AudioContainerId != GamepadContainerId)
+						{
+							continue;
+						}
+					}
+
+					// Check if this device is already in use by another controller
+					if (!FAudioDeviceRegistry::Get().IsDeviceInUse(pPlaybackInfos[i].id))
+					{
+						// Verify it has 4 channels (stereo + haptic L/R)
+						// DualSense audio device typically has 4 channels for haptics
+						foundDeviceId = pPlaybackInfos[i].id;
+						pFoundDeviceId = &foundDeviceId;
+						
+						// Mark as used
+						FAudioDeviceRegistry::Get().RegisterDevice(foundDeviceId);
+						break;
+					}
 				}
 			}
 

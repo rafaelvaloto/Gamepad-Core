@@ -76,6 +76,16 @@ struct FAudioDeviceContext
 			Close();
 		}
 
+		if (pDeviceId)
+		{
+			DeviceId = *pDeviceId;
+			bHasDeviceId = true;
+		}
+		else
+		{
+			bHasDeviceId = false;
+		}
+
 		SampleRate = InSampleRate;
 		NumChannels = InNumChannels;
 		ma_uint32 bufferSizeInFrames = static_cast<ma_uint32>(SampleRate);
@@ -193,8 +203,10 @@ struct FAudioDeviceContext
 public:
 	ma_device Device;
 	ma_pcm_rb RingBuffer;
+	ma_device_id DeviceId;
 	int SampleRate = 48000;
 	int NumChannels = 4;
 	bool bInitialized = false;
 	bool bRingBufferInitialized = false;
+	bool bHasDeviceId = false;
 };

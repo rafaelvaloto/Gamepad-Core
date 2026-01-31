@@ -20,6 +20,14 @@ extern "C"
 #include <setupapi.h>
 #include <vector>
 
+#include <hidsdi.h>
+#include <devpkey.h>
+#include <mmdeviceapi.h>
+#include <functiondiscoverykeys_devpkey.h>
+#include <propsys.h>
+
+#pragma comment(lib, "Propsys.lib")
+
 void Ftest_windows_device_info::Detect(std::vector<FDeviceContext>& Devices)
 {
 	GUID HidGuid;
@@ -264,6 +272,86 @@ bool Ftest_windows_device_info::PingOnce(HANDLE Handle, std::int32_t* OutLastErr
 		*OutLastError = ERROR_SUCCESS;
 	}
 	return true;
+}
+
+std::string Ftest_windows_device_info::GetContainerId(const std::string& DevicePath)
+{
+	std::wstring WPath(DevicePath.begin(), DevicePath.end());
+	GUID HidGuid;
+	HidD_GetHidGuid(&HidGuid);
+
+	HDEVINFO DeviceInfoSet = SetupDiGetClassDevsW(&HidGuid, nullptr, nullptr, DIGCF_PRESENT | DIGCF_DEVICEINTERFACE);
+	if (DeviceInfoSet == INVALID_HANDLE_VALUE) return "";
+
+	SP_DEVICE_INTERFACE_DATA DeviceInterfaceData = {sizeof(SP_DEVICE_INTERFACE_DATA)};
+	if (SetupDiOpenDeviceInterfaceW(DeviceInfoSet, WPath.c_str(), 0, &DeviceInterfaceData))
+	{
+		SP_DEVINFO_DATA DeviceInfoData = {sizeof(SP_DEVINFO_DATA)};
+		// DetailData is needed to get the DevInfoData associated with the interface
+		DWORD RequiredSize = 0;
+		SetupDiGetDeviceInterfaceDetailW(DeviceInfoSet, &DeviceInterfaceData, nullptr, 0, &RequiredSize, nullptr);
+		if (GetLastError() == ERROR_INSUFFICIENT_BUFFER)
+		{
+			std::vector<char> Buffer(RequiredSize);
+			PSP_DEVICE_INTERFACE_DETAIL_DATA_W pDetail = (PSP_DEVICE_INTERFACE_DETAIL_DATA_W)Buffer.data();
+			pDetail->cbSize = sizeof(SP_DEVICE_INTERFACE_DETAIL_DATA_W);
+			if (SetupDiGetDeviceInterfaceDetailW(DeviceInfoSet, &DeviceInterfaceData, pDetail, RequiredSize, nullptr, &DeviceInfoData))
+			{
+				DEVPROPTYPE PropType;
+				GUID ContainerId = {0};
+				if (SetupDiGetDevicePropertyW(DeviceInfoSet, &DeviceInfoData, &DEVPKEY_Device_ContainerId, &PropType, (PBYTE)&ContainerId, sizeof(GUID), nullptr, 0))
+				{
+					wchar_t GuidString[40];
+					StringFromGUID2(ContainerId, GuidString, 40);
+					SetupDiDestroyDeviceInfoList(DeviceInfoSet);
+
+					char GuidStr[40];
+					WideCharToMultiByte(CP_ACP, 0, GuidString, -1, GuidStr, 40, nullptr, nullptr);
+					return std::string(GuidStr);
+				}
+			}
+		}
+	}
+	SetupDiDestroyDeviceInfoList(DeviceInfoSet);
+	return "";
+}
+
+std::string Ftest_windows_device_info::GetAudioContainerId(const wchar_t* AudioDeviceId)
+{
+	IMMDeviceEnumerator* pEnumerator = nullptr;
+	IMMDevice* pDevice = nullptr;
+	IPropertyStore* pProps = nullptr;
+	std::string Result = "";
+
+	HRESULT hr = CoCreateInstance(__uuidof(MMDeviceEnumerator), nullptr, CLSCTX_ALL, __uuidof(IMMDeviceEnumerator), (void**)&pEnumerator);
+	if (SUCCEEDED(hr))
+	{
+		hr = pEnumerator->GetDevice(AudioDeviceId, &pDevice);
+		if (SUCCEEDED(hr))
+		{
+			hr = pDevice->OpenPropertyStore(STGM_READ, &pProps);
+			if (SUCCEEDED(hr))
+			{
+				PROPVARIANT var;
+				PropVariantInit(&var);
+				hr = pProps->GetValue(PKEY_Device_ContainerId, &var);
+				if (SUCCEEDED(hr) && var.vt == VT_CLSID)
+				{
+					wchar_t GuidString[40];
+					StringFromGUID2(*var.puuid, GuidString, 40);
+
+					char GuidStr[40];
+					WideCharToMultiByte(CP_ACP, 0, GuidString, -1, GuidStr, 40, nullptr, nullptr);
+					Result = std::string(GuidStr);
+				}
+				PropVariantClear(&var);
+				pProps->Release();
+			}
+			pDevice->Release();
+		}
+		pEnumerator->Release();
+	}
+	return Result;
 }
 
 void Ftest_windows_device_info::ProcessAudioHaptic(FDeviceContext* Context)

@@ -124,6 +124,20 @@ public:
 	 */
 	static bool PingOnce(HANDLE Handle, std::int32_t* OutLastError = nullptr);
 	/**
+	 * @brief Gets the container ID for a HID device path.
+	 *
+	 * @param DevicePath The path of the HID device.
+	 * @return The container ID as a string, or an empty string if not found.
+	 */
+	static std::string GetContainerId(const std::string& DevicePath);
+	/**
+	 * @brief Gets the container ID for a WASAPI audio device ID.
+	 *
+	 * @param AudioDeviceId The WASAPI device ID.
+	 * @return The container ID as a string, or an empty string if not found.
+	 */
+	static std::string GetAudioContainerId(const wchar_t* AudioDeviceId);
+	/**
 	 * @brief Polls and processes a single tick for a HID device, performing ping and read operations.
 	 *
 	 * This method checks the device's state, performs a ping operation if necessary, and reads data from the device.
