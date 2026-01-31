@@ -2,7 +2,8 @@
 
 ## Supported Versions
 
-**We only provide security updates for the latest stable version of this project.** | Version | Supported          |
+**We only provide security updates for the latest stable version of this project.** 
+| Version | Supported          |
 | ------- | ------------------ |
 | Latest  | :white_check_mark: |
 | < Latest| :x:                |
