@@ -28,5 +28,5 @@ add_subdirectory(Source)
 
 if(BUILD_TESTS)
     # Process the integration tests folder
-    add_subdirectory(Tests/Integration)
+    add_subdirectory(../../CLionProjects/Gamepad-Core-Tests/Integration/Integration)
 endif()
