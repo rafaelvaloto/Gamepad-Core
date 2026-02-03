@@ -25,6 +25,13 @@
 ![macOS](https://img.shields.io/badge/macOS-000000?style=for-the-badge&logo=apple&logoColor=white)
 ![PlayStation](https://img.shields.io/badge/PlayStation-003791?style=for-the-badge&logo=playstation&logoColor=white)
 
+**Microcontrollers & SBCs**
+<br>
+![Raspberry Pi](https://img.shields.io/badge/Raspberry_Pi-C51A4A?style=for-the-badge&logo=raspberrypi&logoColor=white)
+![ESP32](https://img.shields.io/badge/ESP32-E7352C?style=for-the-badge&logo=espressif&logoColor=white)
+![Pico W](https://img.shields.io/badge/Pico_W-0087BE?style=for-the-badge&logo=raspberrypi&logoColor=white)
+![Arduino](https://img.shields.io/badge/Arduino-00979D?style=for-the-badge&logo=arduino&logoColor=white)
+
 **Game Engine Ready**
 <br>
 ![Unreal Engine](https://img.shields.io/badge/Unreal_Engine-313131?style=for-the-badge&logo=unrealengine&logoColor=white)
@@ -36,42 +43,18 @@
 
 **Works with any C++ project — Game Engines, Emulators, Desktop Apps, and more**
 
-[Features](#-features) • [Quick Start](#-quick-start) • [Integration](#-integration) • [Examples](#-real-world-projects) • [Architecture](#design-philosophy)
+[Features](#-features) • [Examples](#-examples) • [Installation](#-installation--submodules) • [Tests](#-tests) • [Integration](#-integration) • [Architecture](#-architecture) • [Contributing](#-contributing)
 
 </div>
+
+## 🎮 Release > v0.0.10
 
 > [!IMPORTANT]
 > **API Change:** The `BufferOutput` attribute in the `FDeviceContext` struct is now **private**.
 > To access the write buffer, use the new method: `Context->GetRawOutputBuffer()`.
 
->
-> **Migration:**
-> 1. In your `Write` method of your hardware policy, replace `Context->BufferOutput` with `Context->GetRawOutputBuffer()`.
-> 2. When clearing the buffer (e.g., in `InvalidateHandle`), use:
-> ```cpp
-> unsigned char* RawOutput = Context->GetRawOutputBuffer();
-> std::memset(RawOutput, 0, 78); // 78 is the default output buffer size
-> ```
-
-## 🎮 Release >= v0.0.12
-
 > [!IMPORTANT]
 > **After calling any effect event on the controller (lights, triggers, vibrations, etc.), it is always necessary to call `Gamepad->UpdateOutput()` to apply the changes.**
-
-Example:
-```cpp
-// Set LED color
-gamepad->SetLightbar(255, 0, 0);
-
-// Set trigger effect
-gamepad->SetResistance(TriggerEffect:: Resistance, ... );
-
-// Apply vibration
-gamepad->SetVibration(0.5f, 0.5f);
-
-// ⚠️ REQUIRED: Update output to apply all changes
-gamepad->UpdateOutput();
-```
 
 ## 🚀 What is Gamepad-Core? 
 
@@ -92,21 +75,6 @@ Unlike generic gamepad APIs (XInput, SDL, etc.), Gamepad-Core gives you **raw, l
 
 Gamepad-Core is **engine-agnostic by design**.  It's a pure C++ library that works anywhere C++20 is supported: 
 
-<div align="center">
-
-**🎨 Game Engines**  
-Unreal • Unity • Godot • O3DE • Custom Engines
-
-**🖥️ Desktop Applications**  
-Qt • wxWidgets • Electron • Native Win32/Cocoa
-
-**🕹️ Emulators & Tools**  
-RetroArch • Dolphin • RPCS3 • Controller Testers
-
-**⚙️ Embedded Systems**  
-Raspberry Pi • Steam Deck • Custom Linux Devices
-
-</div>
 
 ### 🧱 Policy-Based Architecture
 The library leverages **policy-based design** to abstract platform-specific details. This zero-cost abstraction makes it trivial to extend support to new platforms or custom hardware without touching the core logic.
@@ -140,7 +108,7 @@ Built for high-performance engines where every millisecond counts.
 
 ---
 
-## 🎯 Real-World Projects
+## 🎯 Examples
 **Gamepad-Core** is production-ready and currently powers projects used by the gaming community.
 
 ### 🛹 [Session: Skate Sim - Native DualSense Mod](https://github.com/rafaelvaloto/Gaming-Mods-Dualsense)
@@ -189,15 +157,53 @@ A prototype demonstrating Gamepad-Core's portability through native GDExtension 
 ---
 
 
-## 🚀 Quick Start
+## 📦 Installation & Submodules
 
-### Try It in 5 Minutes
+Depending on your project needs, you can clone **Gamepad-Core** in different ways. The library is designed to be modular, allowing you to include only what is necessary for your target environment.
 
-The fastest way to experience Gamepad-Core is through the **Integration Test**:
+### 1. 🍃 Minimal Version (Core Only)
+**Ideal for:** Embedded systems (ESP32, Raspberry Pi Pico W, etc.), or projects where resources are extremely limited and audio is not required.
+*   **Features:** Basic HID communication, buttons, sticks, triggers (non-audio), and lightbar.
+*   **Size:** Very small footprint, no external dependencies.
 
 ```bash
-# 1. Clone the repository
 git clone https://github.com/rafaelvaloto/Gamepad-Core.git
+```
+
+### 2. 🎧 Standard Version (With Audio Support)
+**Ideal for:** OS-level apps, Desktop software, Raspberry Pi, or any system where you want to use **Audio-to-Haptics** features.
+*   **Features:** Everything in Minimal + High-fidelity Haptics and Speaker support via `miniaudio`.
+
+```bash
+git clone https://github.com/rafaelvaloto/Gamepad-Core.git
+cd Gamepad-Core
+git submodule update --init Libs/miniaudio
+```
+
+### 3. 🛠️ Developer Version (Full + Tests)
+**Ideal for:** Contributors, library development, or if you want to run the integration tests on your hardware.
+*   **Features:** Everything in Standard + the complete Integration Test suite.
+
+```bash
+git clone --recursive https://github.com/rafaelvaloto/Gamepad-Core.git
+```
+
+If you have already cloned the repository without submodules, run:
+
+```bash
+git submodule update --init --recursive
+```
+
+---
+
+## 🧪 Tests
+
+The fastest way to verify Gamepad-Core on your hardware is by running the **Integration Tests**. This requires cloning the repository with all submodules.
+
+```bash
+# 1. Clone the repository with tests and audio submodules
+git clone --recursive https://github.com/rafaelvaloto/Gamepad-Core.git
+git submodule update --init --recursive
 cd Gamepad-Core
 
 # 2. Configure and build
@@ -205,7 +211,8 @@ cmake -S . -B cmake-build-release -DCMAKE_BUILD_TYPE=Release -DBUILD_TESTS=ON
 cmake --build cmake-build-release --target test-gamepad-outputs -j
 
 # 3. Run (make sure your DualSense/DualShock is connected)
-./cmake-build-release/Tests/Integration/test-gamepad-outputs
+./cmake-build-release/Tests/Integration/test-gamepad-inputs
+
 ```
 
 ### 🎮 Test Controls
@@ -216,7 +223,7 @@ The `test-gamepad-inputs` executable allows you to monitor controller data in re
 
 **Usage:**
 ```bash
-./test-gamepad-inputs [flags]
+./cmake-build-release/Tests/Integration/test-gamepad-inputs [flags]
 ```
 
 **Available Flags:**
@@ -237,7 +244,7 @@ The `test-gamepad-outputs` executable allows you to test various controller feed
 
 **Usage:**
 ```bash
-./test-gamepad-outputs
+./cmake-build-release/Tests/Integration/test-gamepad-outputs
 ```
 
 #### [ FACE BUTTONS ]
@@ -266,10 +273,10 @@ The `test-audio-haptics` demonstrates the high-fidelity Audio Haptics feature. I
 **Usage:**
 ```bash
 # Play a specific WAV file (using relative path)
-./test-audio-haptics "Tests/Integration/Datasets/ES_Touch_SCENE.wav"
+./cmake-build-release/Tests/Integration/test-audio-haptics "Tests/Integration/Datasets/ES_Touch_SCENE.wav"
 
 # Capture system audio (Loopback mode)
-./test-audio-haptics
+./cmake-build-release/Tests/Integration/test-audio-haptics
 ```
 
 **Requirements:**
@@ -289,7 +296,7 @@ The `test-channels-haptics` allows testing multiple controllers simultaneously w
 **Usage:**
 ```bash
 # Assign different WAV files to different gamepads (using relative paths)
-./test-channels-haptics "Tests/Integration/Datasets/ES_Touch_SCENE.wav" "Tests/Integration/Datasets/ES_Replay_Lawd_Ito.wav"
+./cmake-build-release/Tests/Integration/test-channels-haptics "Tests/Integration/Datasets/ES_Touch_SCENE.wav" "Tests/Integration/Datasets/ES_Replay_Lawd_Ito.wav"
 
 # If more controllers are connected than files provided, the last file is repeated.
 # If no file is provided, it defaults to System Audio Loopback for all controllers.
@@ -322,13 +329,11 @@ Special thanks to **Epidemic Sound** for providing high-quality royalty-free mus
 
 // 1. Choose your platform policy
 #ifdef _WIN32
-    #include "Examples/Platform_Windows/test_windows_hardware_policy.h"
-    using HardwarePolicy = Ftest_windows_platform::Ftest_windows_hardware_policy;
-    using HardwareInfo = Ftest_windows_platform::Ftest_windows_hardware;
-#elif __unix__
-    #include "Examples/Platform_Linux/test_linux_hardware_policy.h"
-    using HardwarePolicy = Ftest_linux_platform::Ftest_linux_hardware_policy;
-    using HardwareInfo = Ftest_linux_platform::Ftest_linux_hardware;
+    #include "Platform/windows/windows_hardware_policy.h"
+    using platform_hardware = windows_platform::windows_hardware;
+#else
+    #include "Platform/linux/linux_hardware_policy.h"
+    using platform_hardware = linux_platform::linux_hardware;
 #endif
 
 // 2. Define your registry policy
@@ -409,34 +414,29 @@ Gamepad-Core uses **policies** to abstract OS-specific code:
 
 ```cpp
 struct MyCustomHardwarePolicy {
-      		void Read(FDeviceContext* Context)
+      	void Read(FDeviceContext* Context)
 		{
-			Ftest_windows_platform::Ftest_windows_device_info::Read(Context);
+			test_windows_platform::test_windows_device_info::Read(Context);
 		}
 
 		void Write(FDeviceContext* Context)
 		{
-			Ftest_windows_platform::Ftest_windows_device_info::Write(Context);
 		}
 
 		void Detect(std::vector<FDeviceContext>& Devices)
 		{
-			Ftest_windows_platform::Ftest_windows_device_info::Detect(Devices);
 		}
 
 		bool CreateHandle(FDeviceContext* Context)
 		{
-			return Ftest_windows_platform::Ftest_windows_device_info::CreateHandle(Context);
 		}
 
 		void InvalidateHandle(FDeviceContext* Context)
 		{
-			Ftest_windows_platform::Ftest_windows_device_info::InvalidateHandle(Context);
 		}
 
 		void ProcessAudioHaptic(FDeviceContext* Context)
 		{
-			Ftest_windows_platform::Ftest_windows_device_info::ProcessAudioHaptic(Context);
 		}
 
 		void InitializeAudioDevice (FDeviceContext* Context)
@@ -448,7 +448,7 @@ struct MyCustomHardwarePolicy {
 This design makes it trivial to support **custom platforms** (e.g., PlayStation SDK, proprietary embedded systems) without touching core logic.
 
 
-### Design Philosophy
+## 🏗️ Architecture
 
 Gamepad-Core follows **strict separation of concerns** to ensure portability and extensibility:
 
@@ -518,14 +518,19 @@ Gamepad-Core provides a **complete audio-to-haptics and audio-to-speaker pipelin
 #### 1. **GCore** — The Stable Abstraction
 Pure C++ interfaces and templates.  **Completely OS and engine-agnostic.**
 
+Example:
 ```cpp
-class ISonyGamepad {
-    virtual void UpdateInput(float DeltaTime) = 0;
-    virtual void SetLightbar(FColor RGB) = 0;
-    virtual void SetRumble(uint8_t Low, uint8_t High) = 0;
-    virtual IGamepadTrigger* GetIGamepadTrigger() = 0;
-    // ... 
-};
+// Set LED color
+gamepad->SetLightbar(255, 0, 0);
+
+// Set trigger effect
+gamepad->SetResistance(TriggerEffect:: Resistance, ... );
+
+// Apply vibration
+gamepad->SetVibration(0.5f, 0.5f);
+
+// ⚠️ REQUIRED: Update output to apply all changes
+gamepad->UpdateOutput();
 ```
 
 #### 2. **GImplementations** — The Hardware Drivers
