@@ -34,9 +34,9 @@ jobs:
         languages: ${{ matrix.language }}
         config: |
           paths-ignore:
-            - 'Source/Public/Libs/miniaudio.h'
-            - 'Source/Private/GImplementations/Utils/MiniAudio/miniaudio_impl.cpp'
-            - 'Source/Public/Libs/**'
+            - 'Libs/miniaudio/miniaudio.h'
+            - 'Libs/miniaudio/miniaudio_impl.cpp'
+            - 'Libs/miniaudio/**'
             - '**/*.wav'
             - 'Tests/Integration/Datasets/**'
         queries: security-extended,security-and-quality
@@ -47,10 +47,10 @@ jobs:
         sudo apt-get install -y build-essential cmake libasound2-dev libudev-dev libsdl2-dev
 
     - name: Configure CMake
-      run: cmake -B ${{github.workspace}}/build -DCMAKE_BUILD_TYPE=Release -DBUILD_TESTS=ON
+      run: cmake -B ${{github.workspace}}/build -DCMAKE_BUILD_TYPE=Release -DBUILD_TESTS=ON -DAUTOMATED_TESTS=ON
 
     - name: Build
-      run: cmake --build ${{github.workspace}}/build --config Release
+      run: cmake --build ${{github.workspace}}/build --config Release --target GamepadCore test-gamepad-outputs test-audio-haptics test-channels-haptics test-gamepad-inputs
 
     - name: Perform CodeQL Analysis
       uses: github/codeql-action/analyze@v4
