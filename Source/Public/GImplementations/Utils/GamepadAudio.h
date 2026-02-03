@@ -28,7 +28,9 @@
 #pragma GCC diagnostic ignored "-Wmissing-field-initializers"
 #endif
 
+#if GAMEPAD_CORE_HAS_AUDIO
 #include "miniaudio.h"
+#endif
 
 #if defined(_WIN32)
 #pragma warning(pop)
