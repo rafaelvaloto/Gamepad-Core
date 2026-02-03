@@ -63,8 +63,8 @@ if [ -f "${PROJECT_DIR}/.clang-format-ignore" ]; then
 fi
 
 # Standard excludes
-FIND_ARGS+=(-not -path "*Libs*")
 FIND_ARGS+=(-not -path "*cmake-build*")
+FIND_ARGS+=(-not -path "*/.git/*")
 
 # Reset IFS to default to ensure array expansion works correctly for the find command
 OLD_IFS="$IFS"

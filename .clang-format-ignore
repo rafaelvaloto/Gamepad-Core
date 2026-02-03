@@ -1,8 +1,6 @@
-﻿# ... existing code ...
-# External Libraries
-miniaudio.h
-miniaudio_impl.cpp
+﻿# External Libraries
 Libs/
+Tests/
 
 # Binary data and Datasets
 *.wav
