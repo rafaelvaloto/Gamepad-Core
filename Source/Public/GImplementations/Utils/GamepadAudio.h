@@ -28,7 +28,7 @@
 #pragma GCC diagnostic ignored "-Wmissing-field-initializers"
 #endif
 
-#include "Libs/miniaudio.h"
+#include "miniaudio.h"
 
 #if defined(_WIN32)
 #pragma warning(pop)

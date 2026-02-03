@@ -23,7 +23,7 @@ set(AUDIO_MODULE_PATH "${CMAKE_SOURCE_DIR}/Libs/miniaudio")
 
 if(EXISTS "${AUDIO_MODULE_PATH}/miniaudio.h")
     target_sources(GamepadCore PRIVATE "${AUDIO_MODULE_PATH}/miniaudio_impl.cpp")
-    target_include_directories(GamepadCore PRIVATE "${AUDIO_MODULE_PATH}")
+    target_include_directories(GamepadCore PUBLIC "${AUDIO_MODULE_PATH}")
     target_compile_definitions(GamepadCore PUBLIC GAMEPAD_CORE_HAS_AUDIO=1)
     message(STATUS "GamepadCore: Audio module ENABLED")
 else()

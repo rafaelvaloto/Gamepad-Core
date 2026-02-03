@@ -203,8 +203,9 @@ The fastest way to verify Gamepad-Core on your hardware is by running the **Inte
 ```bash
 # 1. Clone the repository with tests and audio submodules
 git clone --recursive https://github.com/rafaelvaloto/Gamepad-Core.git
-git submodule update --init --recursive
 cd Gamepad-Core
+git submodule update --init --recursive
+
 
 # 2. Configure and build
 cmake -S . -B cmake-build-release -DCMAKE_BUILD_TYPE=Release -DBUILD_TESTS=ON
