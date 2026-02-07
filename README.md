@@ -145,6 +145,8 @@ The Pico W implementation includes **complete support** for all advanced DualSen
 
 **[👉 Check out the Pico W implementation](https://github.com/rafaelvaloto/Pico_W-Dualsense)**
 
+The Pico W implementation uses the exact same C++ core files as the Unreal and O3DE integrations, with zero logic changes.
+
 ## 🏆 Unreal Engine — Primary Integration
 **[Unreal-Dualsense](https://github.com/rafaelvaloto/Unreal-Dualsense)** (v2.0.3)
 
