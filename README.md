@@ -112,7 +112,7 @@ Built for high-performance engines where every millisecond counts.
 
 ## 🍓 Raspberry Pi Pico W — Microcontroller Integration
 
-**Work in Progress** — Demonstrating the extreme portability and architectural efficiency of the library, the same core logic used in AAA game engines runs perfectly on a Pico W (264KB RAM / 2MB Flash).
+Demonstrating the extreme portability and architectural efficiency of the library, the same core logic used in AAA game engines runs perfectly on a **Pico W (264KB RAM / 2MB Flash)**.
 
 ### Key Achievements
 
