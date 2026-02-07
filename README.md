@@ -145,7 +145,7 @@ The Pico W implementation includes **complete support** for all advanced DualSen
 
 **[👉 Check out the Pico W implementation](https://github.com/rafaelvaloto/Pico_W-Dualsense)**
 
-### 🏆 Unreal Engine — Primary Integration
+## 🏆 Unreal Engine — Primary Integration
 **[Unreal-Dualsense](https://github.com/rafaelvaloto/Unreal-Dualsense)** (v2.0.3)
 
 The flagship plugin bringing native DualSense support to UE5 via Blueprint and C++.
@@ -153,7 +153,7 @@ The flagship plugin bringing native DualSense support to UE5 via Blueprint and C
 * ✅ Real-time Audio-to-Haptics submix processing.
 * ✅ Native Input System integration for Force Feedback & Motion.
 
-### ⚙️ O3DE (Open 3D Engine) — Gem Integration
+##  ⚙️ O3DE (Open 3D Engine) — Gem Integration
 
 **[O3DE-Dualsense](https://github.com/rafaelvaloto/o3de-dualsense)** (O3DE Gem)
 
@@ -166,13 +166,13 @@ A native O3DE Gem that brings DualSense and DualShock 4 support to the Open 3D E
 - ✅ Native O3DE EBus system integration
 - ✅ Blueprint-compatible scripting bindings
 
-### 🧩 Godot Engine — Prototype Integration
+##  🧩 Godot Engine — Prototype Integration
 
 **[Godot-Dualsense](https://github.com/rafaelvaloto/Godot-Dualsense)** (GDExtension for Godot 4.x)
 
 A prototype demonstrating Gamepad-Core's portability through native GDExtension bindings.  Shows how the library can be wrapped for any scripting environment.
 
-### 🛹 [Session: Skate Sim - Native DualSense Mod](https://github.com/rafaelvaloto/Gaming-Mods-Dualsense)
+##  🛹 [Session: Skate Sim - Native DualSense Mod](https://github.com/rafaelvaloto/Gaming-Mods-Dualsense)
 A specialized implementation tailored for *Session: Skate Sim*, demonstrating the library's ability to enhance gameplay physics.
 
 * **Truck Physics on Triggers:** Adaptive triggers stiffen dynamically to simulate truck resistance while turning.
