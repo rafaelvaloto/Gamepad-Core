@@ -28,8 +28,8 @@ void FGamepadOutput::OutputDualShock(FDeviceContext* DeviceContext)
 		MutableBuffer[1] = 0x80; // Report sub-ID
 		MutableBuffer[3] = 0x0F; // Control mask: Rumble, Lightbar, Flash
 
-		MutableBuffer[6] = HidOut->Rumbles.Left;
-		MutableBuffer[7] = HidOut->Rumbles.Right;
+		MutableBuffer[6] = HidOut->Rumbles.Right;
+		MutableBuffer[7] = HidOut->Rumbles.Left;
 		MutableBuffer[8] = HidOut->Lightbar.R;
 		MutableBuffer[9] = HidOut->Lightbar.G;
 		MutableBuffer[10] = HidOut->Lightbar.B;
@@ -48,8 +48,8 @@ void FGamepadOutput::OutputDualShock(FDeviceContext* DeviceContext)
 		MutableBuffer[0] = 0x05;
 		MutableBuffer[1] = 0x0F; // Control mask: Rumble, Lightbar, Flash
 
-		MutableBuffer[4] = HidOut->Rumbles.Left;
-		MutableBuffer[5] = HidOut->Rumbles.Right;
+		MutableBuffer[4] = HidOut->Rumbles.Right;
+		MutableBuffer[5] = HidOut->Rumbles.Left;
 		MutableBuffer[6] = HidOut->Lightbar.R;
 		MutableBuffer[7] = HidOut->Lightbar.G;
 		MutableBuffer[8] = HidOut->Lightbar.B;
@@ -87,8 +87,8 @@ void FGamepadOutput::OutputDualSense(FDeviceContext* DeviceContext)
 		unsigned char* Output = &MutableBuffer[Padding];
 		Output[0] = HidOut->Feature.VibrationMode;
 		Output[1] = HidOut->Feature.FeatureMode;
-		Output[2] = HidOut->Rumbles.Left;
-		Output[3] = HidOut->Rumbles.Right;
+		Output[2] = HidOut->Rumbles.Right;
+		Output[3] = HidOut->Rumbles.Left;
 		Output[4] = HidOut->Audio.HeadsetVolume;
 		Output[5] = HidOut->Audio.SpeakerVolume;
 		Output[6] = HidOut->Audio.MicVolume;
