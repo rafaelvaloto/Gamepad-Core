@@ -107,7 +107,6 @@ Built for high-performance engines where every millisecond counts.
 
 ---
 
-## 🎯 Examples
 **Gamepad-Core** is production-ready and currently powers projects used by the gaming community, from high-end Game Engines to low-power Microcontrollers.
 
 ## 🍓 Raspberry Pi Pico W — Microcontroller Integration
@@ -115,12 +114,6 @@ Built for high-performance engines where every millisecond counts.
 Demonstrating the extreme portability and architectural efficiency of the library, the same core logic used in AAA game engines runs perfectly on a **Pico W (264KB RAM / 2MB Flash)**.
 
 ### 🎥 [Click and watch the example video on YouTube.](https://www.youtube.com/watch?v=GgKDtwfS6v4)
-
-### Key Achievements
-
-- **Bare Metal Performance**: Low-latency HID communication without an OS
-- **Memory Efficient**: Optimized footprint for embedded systems with limited RAM/Flash
-- **DualSense Wireless**: Full Bluetooth Classic support on the Pico W cyw43 chip
 
 ### 🕹️ Advanced DualSense Features Fully Implemented
 
@@ -168,17 +161,6 @@ A prototype demonstrating Gamepad-Core's portability through native GDExtension 
 
 ##  🛹 [Session: Skate Sim - Native DualSense Mod](https://github.com/rafaelvaloto/Gaming-Mods-Dualsense)
 A specialized implementation tailored for *Session: Skate Sim*, demonstrating the library's ability to enhance gameplay physics.
-
-* **Truck Physics on Triggers:** Adaptive triggers stiffen dynamically to simulate truck resistance while turning.
-* **Haptic Texture:** Audio-based haptics allow players to "feel" the pop, landing, and grind friction on different surfaces.
-
-#### 🚀 Build Mods for Your Favorite Games
-Want to create a similar mod for another game?
-
-The **Session Mod** repository above serves as a perfect **Template**. You can fork it or review the source code to learn how to:
-1.  Initialize the GamepadCore library within a DLL.
-2.  Hook into game events (like Unreal Engine physics).
-3.  Translate game audio/physics into Haptics and Trigger effects.
 
 **[👉 Start by cloning the Session Mod Repo](https://github.com/rafaelvaloto/Gaming-Mods-Dualsense)**
 
